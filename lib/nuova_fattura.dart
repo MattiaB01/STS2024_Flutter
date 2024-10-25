@@ -62,6 +62,21 @@ class _nuovaFattura extends State<nuovaFattura> {
     nDisp.text = "1";
   }
 
+  String natIva = "N2.2";
+
+  var itemsNatIva = [
+    'N1',
+    "N2.1",
+    'N2.2',
+    'N3.1',
+    'N3.2',
+    'N3.3',
+    'N3.4',
+    'N3.5',
+    'N3.6',
+    'N4',
+  ];
+
   bool isLoading = false;
   //String dropdownValue = list.first;
 
@@ -290,42 +305,43 @@ class _nuovaFattura extends State<nuovaFattura> {
                               )),
                             ],
                           ),
-                          Card(
-                              child: Column(children: [
-                            Row(children: [
-                              Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: const Text(' Anticipato'),
-                              ),
-                              Switch(
-                                  // This bool value toggles the switch.
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Card(
+                                child: Column(children: [
+                              Row(children: [
+                                const Padding(
+                                  padding: EdgeInsets.all(10.0),
+                                  child: Text(' Anticipato'),
+                                ),
+                                Switch(
+                                    // This bool value toggles the switch.
 
-                                  value: anticip,
-                                  activeColor: Colors.green,
-                                  onChanged: (bool value) {
-                                    // This is called when the user toggles the switch.
-                                    setState(() {
-                                      anticip = value;
-                                    });
-                                  }),
-                              Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: const Text('Opposizione'),
-                              ),
-                              Switch(
-                                  // This bool value toggles the switch.
+                                    value: anticip,
+                                    activeColor: Colors.green,
+                                    onChanged: (bool value) {
+                                      // This is called when the user toggles the switch.
+                                      setState(() {
+                                        anticip = value;
+                                      });
+                                    }),
+                                const Padding(
+                                  padding: EdgeInsets.all(10.0),
+                                  child: Text('Opposizione'),
+                                ),
+                                Switch(
+                                    // This bool value toggles the switch.
 
-                                  value: opposiz,
-                                  activeColor: Colors.green,
-                                  onChanged: (bool value) {
-                                    // This is called when the user toggles the switch.
-                                    setState(() {
-                                      opposiz = value;
-                                    });
-                                  }),
-                            ]),
-                            Row(
-                              children: [
+                                    value: opposiz,
+                                    activeColor: Colors.green,
+                                    onChanged: (bool value) {
+                                      // This is called when the user toggles the switch.
+                                      setState(() {
+                                        opposiz = value;
+                                      });
+                                    }),
+                              ]),
+                              Row(children: [
                                 Padding(
                                   padding: const EdgeInsets.all(10.0),
                                   child: const Text(' Tracciato  '),
@@ -341,9 +357,33 @@ class _nuovaFattura extends State<nuovaFattura> {
                                         tracciato = value;
                                       });
                                     }),
-                              ],
-                            )
-                          ])),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Natura Iva'),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 20),
+                                  child: DropdownButton<String>(
+                                    value: natIva,
+                                    // Array list of items
+                                    items: itemsNatIva.map((String items) {
+                                      return DropdownMenuItem(
+                                        value: items,
+                                        child: Text(items),
+                                      );
+                                    }).toList(),
+                                    // After selecting the desired option,it will
+                                    // change button value to selected value
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        natIva = newValue!;
+                                      });
+                                    },
+                                  ),
+                                )
+                              ]),
+                            ])),
+                          ),
                         ],
                       ),
                     ),
@@ -401,7 +441,7 @@ class _nuovaFattura extends State<nuovaFattura> {
         "dataPag": dataPag.text,
         "numFat": nFat.text,
         "impTot1": importo.text,
-        "natIva1": "N2.2",
+        "natIva1": natIva,
         "aggiungi": "",
         "bollo": "",
         "natIva2": "",

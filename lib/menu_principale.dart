@@ -140,12 +140,11 @@ class _MyAppState extends State<MyHomePage> {
     return Scaffold(
       //backgroundColor: Color.fromARGB(255, 170, 193, 232),
       appBar: AppBar(
-        leading: Icon(
-          Icons.psychology,
-        ),
+        leading: Icon(Icons.account_box),
         // backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         backgroundColor: Colors.blueAccent.withOpacity(0.9),
-        title: Text(widget.title, style: TextStyle(fontSize: 18)),
+        title: Text(widget.title,
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w400)),
         actions: [
           /*    IconButton(
             onPressed: () {},
