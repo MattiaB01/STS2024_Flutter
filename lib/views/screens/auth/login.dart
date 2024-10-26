@@ -32,6 +32,7 @@ class _LoginState extends State<Login> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool isLoading = false;
+  bool visibile = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -162,6 +163,9 @@ class _LoginState extends State<Login> {
                       height: 20,
                     ),
                     TextFormField(
+                        obscureText: visibile,
+                        enableSuggestions: false,
+                        autocorrect: false,
                         controller: password,
                         validator: (value) {
                           if (value!.isEmpty) {
@@ -187,7 +191,13 @@ class _LoginState extends State<Login> {
                               letterSpacing: 0.1,
                             ),
                             prefixIcon: Icon(Icons.password),
-                            suffixIcon: Icon(Icons.visibility))),
+                            suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    visibile = !visibile;
+                                  });
+                                },
+                                icon: Icon(Icons.visibility)))),
                     const SizedBox(
                       height: 40,
                     ),

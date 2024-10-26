@@ -37,7 +37,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyHomePage> {
-  Card makeDashboardItem(String title, String img, int index) {
+  Card creaCard(String title, String img, int index) {
     return Card(
       elevation: 2,
       margin: const EdgeInsets.all(10),
@@ -140,6 +140,7 @@ class _MyAppState extends State<MyHomePage> {
     return Scaffold(
       //backgroundColor: Color.fromARGB(255, 170, 193, 232),
       appBar: AppBar(
+        centerTitle: true,
         leading: Icon(Icons.account_box),
         // backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         backgroundColor: Colors.blueAccent.withOpacity(0.9),
@@ -194,7 +195,7 @@ class _MyAppState extends State<MyHomePage> {
         children: [
           const SizedBox(height: 20),
           Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16),
+            padding: const EdgeInsets.only(left: 16, right: 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -202,7 +203,7 @@ class _MyAppState extends State<MyHomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Container(
-                      width: 360,
+                      width: MediaQuery.sizeOf(context).width - 30,
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.black),
                         borderRadius: BorderRadius.circular(10),
@@ -232,7 +233,7 @@ class _MyAppState extends State<MyHomePage> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 0),
+                    //                  SizedBox(height: 0),
                   ],
                 ),
               ],
@@ -244,15 +245,12 @@ class _MyAppState extends State<MyHomePage> {
               crossAxisCount: 2,
               padding: const EdgeInsets.all(2),
               children: [
-                makeDashboardItem("I tuoi dati", "assets/images/id.png", 0),
-                makeDashboardItem(
-                    "Impostazioni", "assets/images/settings.png", 1),
-                makeDashboardItem("Nuovo utente", "assets/images/user.png", 2),
-                makeDashboardItem(
-                    "Elenco utenti", "assets/images/users.png", 3),
-                makeDashboardItem(
-                    "Nuova fattura", "assets/images/nuova_fattura.png", 4),
-                makeDashboardItem(
+                creaCard("I tuoi dati", "assets/images/id.png", 0),
+                creaCard("Impostazioni", "assets/images/settings.png", 1),
+                creaCard("Nuovo utente", "assets/images/user.png", 2),
+                creaCard("Elenco utenti", "assets/images/users.png", 3),
+                creaCard("Nuova fattura", "assets/images/nuova_fattura.png", 4),
+                creaCard(
                     "Elenco fatture", "assets/images/elenco_fatture.png", 5),
               ],
             ),
