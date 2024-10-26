@@ -145,7 +145,7 @@ class _MyAppState extends State<MyHomePage> {
         // backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         backgroundColor: Colors.blueAccent.withOpacity(0.9),
         title: Text(widget.title,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w400)),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500)),
         actions: [
           /*    IconButton(
             onPressed: () {},
