@@ -234,6 +234,7 @@ class _nuovaFattura extends State<nuovaFattura> {
                           Padding(
                             padding: const EdgeInsets.all(9.0),
                             child: DropdownButton<String>(
+                              hint: Text('seleziona un utente'),
                               isDense: true,
                               isExpanded:
                                   true, // Key property to handle text overflow
@@ -248,7 +249,6 @@ class _nuovaFattura extends State<nuovaFattura> {
 
                               // Down Arrow Icon
                               icon: const Icon(Icons.keyboard_arrow_down),
-
                               // Array list of items
                               items: data.data?.map((Utente items) {
                                 String utente = items.cognome +
@@ -391,9 +391,23 @@ class _nuovaFattura extends State<nuovaFattura> {
                 );
               } else {
                 print("vuoto");
-                return Padding(
+                return /* Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: (const Text("Nessun utente archiviato")),
+                );*/
+
+                    AlertDialog(
+                  backgroundColor: Colors.blueAccent.withOpacity(0.5),
+                  title: const Text('Attenzione:', textAlign: TextAlign.center),
+                  content: const Text(
+                      'Non puoi inviare fatture perchè\nnon hai registrato nessun utente.',
+                      textAlign: TextAlign.center),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, 'Ok'),
+                      child: const Text('Ok'),
+                    ),
+                  ],
                 );
               }
             }));
@@ -403,79 +417,102 @@ class _nuovaFattura extends State<nuovaFattura> {
     setState(() {
       isLoading = true;
     });
+    try {
+      List<Proprietario> prop = await sql.getProprietario();
 
-    List<Proprietario> prop = await sql.getProprietario();
+      String cfProp = prop[0].username;
+      String pw = prop[0].password;
+      String pincode = prop[0].pincode;
+      String piva = prop[0].piva;
 
-    String cfProp = prop[0].username;
-    String pw = prop[0].password;
-    String pincode = prop[0].pincode;
-    String piva = prop[0].piva;
+      final url =
+          //Uri.parse('http://10.0.2.2:8080/invio'); //Repclace Your Endpoint
+          Uri.parse('http://$proxy/invio'); //Repclace Your Endpoint
+      final headers = {'Content-Type': 'application/json'};
+      //final body = jsonEncode({'name': 'John Doe', 'email': 'john@example.com'});
 
-    final url =
-        //Uri.parse('http://10.0.2.2:8080/invio'); //Repclace Your Endpoint
-        Uri.parse('http://$proxy/invio'); //Repclace Your Endpoint
-    final headers = {'Content-Type': 'application/json'};
-    //final body = jsonEncode({'name': 'John Doe', 'email': 'john@example.com'});
+      final prefs = await SharedPreferences.getInstance();
+      final username = prefs.getString('username') ?? 0;
 
-    final prefs = await SharedPreferences.getInstance();
-    final username = prefs.getString('username') ?? 0;
-
-    final body = jsonEncode({
-      "proprietario": {
-        /*
+      final body = jsonEncode({
+        "proprietario": {
+          /*
       "username": ",
       "password": "Salve123",
       "pincode": "3167676525",
       "piva": "65432109876",*/
 
-        "username": cfProp,
-        "password": pw,
-        "pincode": pincode,
-        "piva": piva,
-      },
-      "fattura": {
-        "username": username,
-        "proprietario": cfProp,
-        "utente": cfUtente,
-        "dataFat": dataFat.text,
-        "dataPag": dataPag.text,
-        "numFat": nFat.text,
-        "impTot1": importo.text,
-        "natIva1": natIva,
-        "aggiungi": "",
-        "bollo": "",
-        "natIva2": "",
-        "numDisp": nDisp.text,
-        "tracciato": tracciato ? "SI" : "NO",
-        "opposizione": opposiz ? "SI" : "NO",
-        "anticipato": anticip ? "SI" : "NO",
-      }
-    });
+          "username": cfProp,
+          "password": pw,
+          "pincode": pincode,
+          "piva": piva,
+        },
+        "fattura": {
+          "username": username,
+          "proprietario": cfProp,
+          "utente": cfUtente,
+          "dataFat": dataFat.text,
+          "dataPag": dataPag.text,
+          "numFat": nFat.text,
+          "impTot1": importo.text,
+          "natIva1": natIva,
+          "aggiungi": "",
+          "bollo": "",
+          "natIva2": "",
+          "numDisp": nDisp.text,
+          "tracciato": tracciato ? "SI" : "NO",
+          "opposizione": opposiz ? "SI" : "NO",
+          "anticipato": anticip ? "SI" : "NO",
+        }
+      });
 
-    try {
-      final response = await http.post(url, headers: headers, body: body);
-      // .timeout(Duration(seconds: 2));
-      //final url2 = Uri.parse('http://google.com');
-      //final response = await http.post(url);
+      try {
+        final response = await http.post(url, headers: headers, body: body);
+        // .timeout(Duration(seconds: 2));
+        //final url2 = Uri.parse('http://google.com');
+        //final response = await http.post(url);
 
-      if (response.statusCode == 200) {
-        print('Data Sending Success.');
-        print(response.body.toString());
-        final res = response.body;
-        risultato.text = res.toString();
-      } else {
-        print('Data: ${response.statusCode}');
-        risultato.text = "Si è verificato un errore";
-        //print(response.body);
+        if (response.statusCode == 200) {
+          print('Data Sending Success.');
+          print(response.body.toString());
+          final res = response.body;
+          risultato.text = res.toString();
+        } else {
+          print('Data: ${response.statusCode}');
+          risultato.text = "Si è verificato un errore";
+          //print(response.body);
+        }
+      } catch (e) {
+        print(e);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Problema di connessione. Riprova più tardi.'),
+          ),
+        );
       }
     } catch (e) {
-      print(e);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Problema di connessione. Riprova più tardi.'),
-        ),
-      );
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Attenzione'),
+              content: Text(
+                  "Inserisci i tuoi dati necessari per l'invio prima di procedere"),
+              actions: [
+                TextButton(
+                  style: TextButton.styleFrom(
+                    textStyle: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  child: const Text('Ok'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          });
     }
+    ;
 
     setState(() {
       isLoading = false;
@@ -488,4 +525,24 @@ void invia() {
   print('invia');
 }
 */
+  showError() async {
+    await Future.delayed(Duration(microseconds: 1));
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: Colors.blueAccent.withOpacity(0.5),
+            title: const Text('Attenzione:', textAlign: TextAlign.center),
+            content: const Text(
+                'Non puoi inviare fatture perchè\nnon hai registrato nessun utente.',
+                textAlign: TextAlign.center),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.pop(context, 'Ok'),
+                child: const Text('Ok'),
+              ),
+            ],
+          );
+        });
+  }
 }

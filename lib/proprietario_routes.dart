@@ -32,8 +32,8 @@ class ProprietarioRoute extends StatelessWidget {
       ),
       body: Container(
         alignment: Alignment.topCenter,
-        child: SizedBox(
-          width: 380,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
           child: Card(
               child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
             const ListTile(

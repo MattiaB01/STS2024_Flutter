@@ -53,13 +53,16 @@ class _ElencoUtenti extends State<ElencoFatture> {
                     padding: const EdgeInsets.all(4.0),
                     child: Text('Num.'),
                   ),
-                  Text('Cod.fisc.'),
                   Padding(
-                    padding: const EdgeInsets.only(left: 18),
+                    padding: EdgeInsets.only(left: 20),
+                    child: Text('Codice Fiscale'),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 90),
                     child: Text('Data'),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 70),
+                    padding: const EdgeInsets.only(left: 80),
                     child: Text('Protocollo'),
                   ),
                 ],
