@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sts/proprietario.dart';
-import 'package:sts/proprietario_routes.dart';
+import 'package:sts/dati_proprietario.dart';
 import 'sts_db.dart';
 import 'utente.dart';
 import 'package:intl/intl.dart';
@@ -75,6 +75,18 @@ class _nuovaFattura extends State<nuovaFattura> {
     'N3.5',
     'N3.6',
     'N4',
+    'N5',
+    'N6',
+    'N6.1',
+    'N6.2',
+    'N6.3',
+    'N6.4',
+    'N6.5',
+    'N6.6',
+    'N6.7',
+    'N6.8',
+    'N6.9',
+    'N7',
   ];
 
   bool isLoading = false;
@@ -103,16 +115,34 @@ class _nuovaFattura extends State<nuovaFattura> {
                     child: Form(
                       child: Column(
                         children: [
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Card(
+                              child: Column(
+                                children: [
+                                  ListTile(
+                                    leading: Icon(Icons.wrap_text),
+                                    title: Text(
+                                        'Inserisci i dati della fattura da inviare'),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
                           Row(children: [
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blueAccent,
+                                  foregroundColor: Colors.white,
+                                ),
                                 onPressed: () {
                                   invia();
                                 },
                                 child: isLoading
                                     ? CircularProgressIndicator(
-                                        color: Colors.blue,
+                                        color: Colors.white,
                                       )
                                     : Text('Invia'),
                                 /* isLoading
@@ -144,7 +174,7 @@ class _nuovaFattura extends State<nuovaFattura> {
                                 height: 50,
                                 child: TextField(
                                     controller: nFat,
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                         prefixIcon: Icon(Icons.inventory),
                                         labelText: 'N.Fat.',
                                         floatingLabelStyle: TextStyle(
@@ -159,7 +189,7 @@ class _nuovaFattura extends State<nuovaFattura> {
                                 child: Padding(
                               padding: const EdgeInsets.all(4.0),
                               child: TextField(
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 14,
                                   ),
                                   controller: dataFat,
@@ -213,6 +243,7 @@ class _nuovaFattura extends State<nuovaFattura> {
                                   onTap: () async {
                                     DateTime? pickedDate = await showDatePicker(
                                       context: context,
+                                      initialDate: DateTime.now(),
                                       firstDate: DateTime(2023),
                                       lastDate: DateTime(2040),
                                     );
@@ -318,7 +349,7 @@ class _nuovaFattura extends State<nuovaFattura> {
                                     // This bool value toggles the switch.
 
                                     value: anticip,
-                                    activeColor: Colors.green,
+                                    activeColor: Colors.blueAccent,
                                     onChanged: (bool value) {
                                       // This is called when the user toggles the switch.
                                       setState(() {
@@ -333,7 +364,7 @@ class _nuovaFattura extends State<nuovaFattura> {
                                     // This bool value toggles the switch.
 
                                     value: opposiz,
-                                    activeColor: Colors.green,
+                                    activeColor: Colors.blueAccent,
                                     onChanged: (bool value) {
                                       // This is called when the user toggles the switch.
                                       setState(() {
@@ -350,7 +381,7 @@ class _nuovaFattura extends State<nuovaFattura> {
                                     // This bool value toggles the switch.
 
                                     value: tracciato,
-                                    activeColor: Colors.green,
+                                    activeColor: Colors.blueAccent,
                                     onChanged: (bool value) {
                                       // This is called when the user toggles the switch.
                                       setState(() {

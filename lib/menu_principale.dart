@@ -3,9 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sts/elenco_fatture.dart';
 import 'package:sts/elenco_utenti.dart';
 import 'package:sts/nuova_fattura.dart';
-import 'package:sts/proprietario_routes.dart';
+import 'package:sts/dati_proprietario.dart';
 import 'package:sts/sts_db.dart';
-import 'package:sts/utente_routes.dart';
+import 'package:sts/nuovo_utente.dart';
 import 'package:sts/views/screens/auth/login.dart';
 
 class MyApp extends StatelessWidget {

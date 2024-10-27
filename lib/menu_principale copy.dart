@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 //import 'package:sqflite/sqflite.dart';
-import 'proprietario_routes.dart';
+import 'dati_proprietario.dart';
 import 'sts_db.dart';
-import 'utente_routes.dart';
+import 'nuovo_utente.dart';
 //import 'elenco_utenti_routes.dart';
 import 'elenco_utenti.dart';
 //import 'package:local_auth/local_auth.dart';

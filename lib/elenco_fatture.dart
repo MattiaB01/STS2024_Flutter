@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,27 +46,22 @@ class _ElencoUtenti extends State<ElencoFatture> {
         ),
         body: Column(
           children: [
-            const Card(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Text('Num.'),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 20),
-                    child: Text('Codice Fiscale'),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 90),
-                    child: Text('Data'),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 80),
-                    child: Text('Protocollo'),
-                  ),
-                ],
+            const Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: const Card(
+                shape: RoundedRectangleBorder(),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Expanded(flex: 3, child: Text('N.')),
+                    ),
+                    Expanded(flex: 6, child: Text('Cod.Fisc.')),
+                    Expanded(flex: 12, child: Text('Data')),
+                    Expanded(flex: 14, child: Text('Protocollo')),
+                  ],
+                ),
               ),
             ),
             Expanded(
@@ -83,10 +79,11 @@ class _ElencoUtenti extends State<ElencoFatture> {
                       final fattura = snapshot.data!;
 
                       return ListView.builder(
-                          padding: const EdgeInsets.all(10.0),
+                          padding: const EdgeInsets.all(8.0),
                           itemCount: fattura.length,
                           physics: const AlwaysScrollableScrollPhysics(),
                           itemBuilder: (ctx, i) => Card(
+                                shape: RoundedRectangleBorder(),
                                 child: Row(children: [
                                   Expanded(
                                       flex: 6, child: Text(fattura[i]['nFat'])),

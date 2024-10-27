@@ -87,14 +87,29 @@ class ProprietarioRoute extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent,
+                        foregroundColor: Colors.white,
+                      ),
                       onPressed: () {
                         _salva(context);
                       },
-                      child: const Text('salva')),
-                  const ElevatedButton(
-                      onPressed: carica, child: Text('carica')),
-                  const ElevatedButton(
-                      onPressed: cancella, child: Text('cancella')),
+                      child: const Text('Salva')),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: carica,
+                    child: Text('Carica'),
+                  ),
+                  ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent,
+                        foregroundColor: Colors.white,
+                      ),
+                      onPressed: cancella,
+                      child: Text('Cancella')),
                 ],
               ),
             )

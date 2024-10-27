@@ -35,24 +35,28 @@ class _ElencoUtenti extends State<ElencoUtenti2> {
         ),
         body: Column(
           children: [
-            const Card(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Text('Pos.'),
-                  ),
-                  Text('Nome'),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 35),
-                    child: Text('Cognome'),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20),
-                    child: Text('Cod.Fisc.'),
-                  ),
-                ],
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Card(
+                shape: RoundedRectangleBorder(),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: Text('Pos.'),
+                    ),
+                    Text('Nome'),
+                    Padding(
+                      padding: EdgeInsets.only(left: 35),
+                      child: Text('Cognome'),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 20),
+                      child: Text('Cod.Fisc.'),
+                    ),
+                  ],
+                ),
               ),
             ),
             Expanded(
@@ -72,6 +76,7 @@ class _ElencoUtenti extends State<ElencoUtenti2> {
                           itemCount: utenti.length,
                           physics: const AlwaysScrollableScrollPhysics(),
                           itemBuilder: (ctx, i) => Card(
+                                shape: RoundedRectangleBorder(),
                                 child: Row(children: [
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),

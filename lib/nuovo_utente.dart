@@ -176,13 +176,22 @@ class UtentiRoute extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent,
+                            foregroundColor: Colors.white,
+                          ),
                           onPressed: () {
                             _salva(context);
                           },
-                          child: const Text('salva')),
+                          child: const Text('Salva')),
                       ElevatedButton(
-                          onPressed: _cancella, child: Text('cancella')),
-                      ElevatedButton(onPressed: lista, child: Text('lista'))
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent,
+                            foregroundColor: Colors.white,
+                          ),
+                          onPressed: _cancella,
+                          child: Text('Cancella')),
+                      //ElevatedButton(onPressed: lista, child: Text('lista'))
                     ],
                   ),
                 ),
