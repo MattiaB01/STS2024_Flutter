@@ -226,7 +226,7 @@ void salva() {
 }
 
 Future<void> _salva(BuildContext context) async {
-  Utente? u = await sql.getUtenterByCf(cf.text);
+  Utente? u = await sql.getUtenteByCf(cf.text);
   print("utente" + u.toString());
 
   Utente utente = Utente(

@@ -5,6 +5,7 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sts/dettagli_fatture.dart';
 import 'utente.dart';
 import 'sts_db.dart';
 
@@ -82,65 +83,80 @@ class _ElencoUtenti extends State<ElencoFatture> {
                           padding: const EdgeInsets.all(8.0),
                           itemCount: fattura.length,
                           physics: const AlwaysScrollableScrollPhysics(),
-                          itemBuilder: (ctx, i) => Card(
-                                shape: RoundedRectangleBorder(),
-                                child: Row(children: [
-                                  Expanded(
-                                      flex: 6, child: Text(fattura[i]['nFat'])),
-                                  Expanded(
-                                      flex: 16, child: Text(fattura[i]['cf'])),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(fattura[i]['dataFat']),
-                                  ),
+                          itemBuilder: (ctx, i) => GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            DettagliFatture()),
+                                  );
+                                },
+                                child: Card(
+                                  shape: RoundedRectangleBorder(),
+                                  child: Row(children: [
+                                    Expanded(
+                                        flex: 6,
+                                        child: Text(fattura[i]['nFat'])),
+                                    Expanded(
+                                        flex: 16,
+                                        child: (fattura[i]['cf'] != null)
+                                            ? Text(fattura[i]['cf'])
+                                            : Text('vuoto')),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(fattura[i]['dataFat']),
+                                    ),
 
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                        fattura[i]['protocollo'] ?? 'vuoto'),
-                                  ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                          fattura[i]['protocollo'] ?? 'vuoto'),
+                                    ),
 
-                                  // Expanded(child: Text(utenti[i].cf)),
-                                  Expanded(
-                                      child:
-                                          SizedBox()), // per tenere icona alla fine
-                                  /* IconButton(
-                                    onPressed: () {},
-                                    icon: Icon(Icons.update),
-                                  ),*/
-                                  IconButton(
-                                      onPressed: () {
-                                        showDialog<String>(
-                                            context: context,
-                                            builder: (BuildContext context) =>
-                                                AlertDialog(
-                                                  title: Text("Elimina"),
-                                                  content: Text(
-                                                      "Confermi l'eliminazione?"),
-                                                  actions: <Widget>[
-                                                    TextButton(
-                                                        onPressed: () =>
-                                                            Navigator.pop(
-                                                                context,
-                                                                'Cancel'),
-                                                        child: Text("Annulla")),
-                                                    TextButton(
-                                                      onPressed: () => {
-                                                        print(fattura[i]
-                                                            ['protocollo']),
-                                                        id = fattura[i]
-                                                            ['protocollo'],
-                                                        deleteFattura(),
-                                                        Navigator.pop(
-                                                            context, 'Ok'),
-                                                      },
-                                                      child: Text("Conferma"),
-                                                    )
-                                                  ],
-                                                ));
-                                      }, // => elimina(utenti[i].cf),
-                                      icon: Icon(Icons.delete)),
-                                ]),
+                                    // Expanded(child: Text(utenti[i].cf)),
+                                    Expanded(
+                                        child:
+                                            SizedBox()), // per tenere icona alla fine
+                                    /* IconButton(
+                                      onPressed: () {},
+                                      icon: Icon(Icons.update),
+                                    ),*/
+                                    IconButton(
+                                        onPressed: () {
+                                          showDialog<String>(
+                                              context: context,
+                                              builder: (BuildContext context) =>
+                                                  AlertDialog(
+                                                    title: Text("Elimina"),
+                                                    content: Text(
+                                                        "Confermi l'eliminazione?"),
+                                                    actions: <Widget>[
+                                                      TextButton(
+                                                          onPressed: () =>
+                                                              Navigator.pop(
+                                                                  context,
+                                                                  'Cancel'),
+                                                          child:
+                                                              Text("Annulla")),
+                                                      TextButton(
+                                                        onPressed: () => {
+                                                          print(fattura[i]
+                                                              ['protocollo']),
+                                                          id = fattura[i]
+                                                              ['protocollo'],
+                                                          deleteFattura(),
+                                                          Navigator.pop(
+                                                              context, 'Ok'),
+                                                        },
+                                                        child: Text("Conferma"),
+                                                      )
+                                                    ],
+                                                  ));
+                                        }, // => elimina(utenti[i].cf),
+                                        icon: Icon(Icons.delete)),
+                                  ]),
+                                ),
                               ));
                     } else {
                       // if no data, show simple Text

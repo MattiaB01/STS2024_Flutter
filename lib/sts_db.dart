@@ -130,7 +130,7 @@ class SQLite {
     }
   }
 
-  Future<Utente?> getUtenterByCf(String cf) async {
+  Future<Utente?> getUtenteByCf(String cf) async {
     final db = await database;
     if (cf != null) {
       final List<Map<String, dynamic>> utenti = await db.query(

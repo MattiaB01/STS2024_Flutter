@@ -32,7 +32,7 @@ class _LoginState extends State<Login> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool isLoading = false;
-  bool visibile = false;
+  bool visibile = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(

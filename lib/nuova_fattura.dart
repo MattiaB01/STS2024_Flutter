@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sts/proprietario.dart';
@@ -62,7 +63,23 @@ class _nuovaFattura extends State<nuovaFattura> {
     nDisp.text = "1";
   }
 
+  String tipoSpesa = "SP";
   String natIva = "N2.2";
+  //TK	FC	FV	AD	AS	SR	CT	PI	IC	AA	SV	SP
+  var itemsSpesa = [
+    "SP",
+    "TK",
+    "FC",
+    "FV",
+    "AD",
+    "AS",
+    "SR",
+    "CT",
+    "PI",
+    "IC",
+    "AA",
+    "SV",
+  ];
 
   var itemsNatIva = [
     'N1',
@@ -129,42 +146,6 @@ class _nuovaFattura extends State<nuovaFattura> {
                               ),
                             ),
                           ),
-                          Row(children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blueAccent,
-                                  foregroundColor: Colors.white,
-                                ),
-                                onPressed: () {
-                                  invia();
-                                },
-                                child: isLoading
-                                    ? CircularProgressIndicator(
-                                        color: Colors.white,
-                                      )
-                                    : Text('Invia'),
-                                /* isLoading
-                                      ? CircularProgressIndicator(
-                                          color: Colors.white)
-                                      : Text('Invia')*/
-                              ),
-                            ),
-                            Expanded(
-                                child: TextField(
-                              decoration: InputDecoration(
-                                labelText: 'Esito operazione',
-                              ),
-                              controller: risultato,
-                              enabled: false,
-                              style: TextStyle(
-                                color: (Colors.black),
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ))
-                          ]),
                           Row(children: [
                             Flexible(
                                 child: Padding(
@@ -334,6 +315,43 @@ class _nuovaFattura extends State<nuovaFattura> {
                                       )),
                                 ),
                               )),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 10.0),
+                                child: DropdownMenu<String>(
+                                  initialSelection: "SP",
+                                  label: const Text("Tipo spesa"),
+                                  dropdownMenuEntries:
+                                      itemsSpesa.map((String items) {
+                                    return DropdownMenuEntry(
+                                      value: items,
+                                      label: items,
+                                    );
+                                  }).toList(),
+                                  onSelected: (String? spesa) {
+                                    setState(() {
+                                      tipoSpesa = spesa!;
+                                    });
+                                  },
+                                ),
+                              )
+
+                              /*DropdownButton<String>(
+                                value: tipoSpesa,
+                                // Array list of items
+                                items: itemsSpesa.map((String items) {
+                                  return DropdownMenuItem(
+                                    value: items,
+                                    child: Text(items),
+                                  );
+                                }).toList(),
+                                // After selecting the desired option,it will
+                                // change button value to selected value
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    tipoSpesa = newValue!;
+                                  });
+                                },
+                              ),*/
                             ],
                           ),
                           Padding(
@@ -415,6 +433,68 @@ class _nuovaFattura extends State<nuovaFattura> {
                               ]),
                             ])),
                           ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blueAccent,
+                                      foregroundColor: Colors.white,
+                                      shadowColor: Colors.black,
+                                    ),
+                                    onPressed: () {
+                                      invia();
+                                    },
+                                    child: isLoading
+                                        ? CircularProgressIndicator(
+                                            color: Colors.white,
+                                          )
+                                        : Text('Invia'),
+                                    /* isLoading
+                                      ? CircularProgressIndicator(
+                                          color: Colors.white)
+                                      : Text('Invia')*/
+                                  ),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blueAccent,
+                                      foregroundColor: Colors.white,
+                                      shadowColor: Colors.black,
+                                    ),
+                                    onPressed: () {
+                                      initState();
+                                    },
+                                    child: Text('Nuovo'),
+                                    /* isLoading
+                                      ? CircularProgressIndicator(
+                                          color: Colors.white)
+                                      : Text('Invia')*/
+                                  ),
+                                ]),
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                  child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: TextField(
+                                  decoration: InputDecoration(
+                                    labelText: 'Esito operazione',
+                                  ),
+                                  controller: risultato,
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: (Colors.black),
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              )),
+                            ],
+                          )
                         ],
                       ),
                     ),
@@ -487,6 +567,7 @@ class _nuovaFattura extends State<nuovaFattura> {
           "numFat": nFat.text,
           "impTot1": importo.text,
           "natIva1": natIva,
+          "tipoSpesa": tipoSpesa,
           "aggiungi": "",
           "bollo": "",
           "natIva2": "",
@@ -508,9 +589,46 @@ class _nuovaFattura extends State<nuovaFattura> {
           print(response.body.toString());
           final res = response.body;
           risultato.text = res.toString();
+
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Esito invio'),
+                  content: Text(res),
+                  actions: [
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        textStyle: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      child: const Text('Ok'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              });
         } else {
           print('Data: ${response.statusCode}');
           risultato.text = "Si è verificato un errore";
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  // backgroundColor: Colors.grey.withOpacity(0.9),
+                  title: const Text('Attenzione:', textAlign: TextAlign.center),
+                  content: const Text(
+                      'Si è verificato un errore.\n Controlla tutti i dati.',
+                      textAlign: TextAlign.center),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, 'Ok'),
+                      child: const Text('Ok'),
+                    ),
+                  ],
+                );
+              });
           //print(response.body);
         }
       } catch (e) {
