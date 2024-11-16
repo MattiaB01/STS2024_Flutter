@@ -48,7 +48,7 @@ class _LoginState extends State<Login> {
           ),
         )),*/
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(0.0),
           child: Center(
             //per centrare orrizontalmente
             child: SingleChildScrollView(
@@ -66,29 +66,34 @@ class _LoginState extends State<Login> {
                     const SizedBox(
                       height: 0,
                     ),
-                    Container(
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            spreadRadius: 5,
-                            blurRadius: 20,
-                            offset: const Offset(
-                                0, 3), // changes position of shadow
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(150),
-                        child: SizedBox.fromSize(
-                          size: const Size.fromRadius(150),
-                          child: Image.asset(
-                            'assets/images/STS_Logo.PNG',
+                    Padding(
+                      padding: const EdgeInsets.only(top: 30),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.3),
 
-                            fit: BoxFit.cover,
+                              spreadRadius: 15,
+                              blurRadius: 30,
+                              offset: const Offset(
+                                  0, 0), // changes position of shadow
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(150),
+                          child: SizedBox.fromSize(
+                            size: const Size.fromRadius(150),
+                            child: Image.asset(
+                              'assets/images/STS_Logo.PNG',
 
-                            // width: 300,
-                            // height: 300,
+                              fit: BoxFit.cover,
+
+                              // width: 300,
+                              // height: 300,
+                            ),
                           ),
                         ),
                       ),
@@ -132,72 +137,78 @@ class _LoginState extends State<Login> {
                         ),
                       ),
                     ),*/
-                    TextFormField(
-                        controller: username,
-                        validator: (String? value) {
-                          if (value!.isEmpty) {
-                            return 'inserisci username';
-                          } else {
-                            return null;
-                          }
-                        },
-                        decoration: InputDecoration(
-                            errorStyle: const TextStyle(color: Colors.white),
-                            fillColor: Colors.white,
-                            filled: true,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            //focusedBorder: InputBorder.none,
-                            //enabledBorder: InputBorder.none,
-                            //labelText: 'inserisci il tuo username',
-                            hintText: 'username',
-                            hintStyle: const TextStyle(color: Colors.grey),
-                            labelStyle: GoogleFonts.getFont(
-                              'Nunito Sans',
-                              fontSize: 14,
-                              letterSpacing: 0.1,
-                            ),
-                            prefixIcon: Icon(Icons.people))),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                      child: TextFormField(
+                          controller: username,
+                          validator: (String? value) {
+                            if (value!.isEmpty) {
+                              return 'inserisci username';
+                            } else {
+                              return null;
+                            }
+                          },
+                          decoration: InputDecoration(
+                              errorStyle: const TextStyle(color: Colors.white),
+                              fillColor: Colors.white,
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              //focusedBorder: InputBorder.none,
+                              //enabledBorder: InputBorder.none,
+                              //labelText: 'inserisci il tuo username',
+                              hintText: 'username',
+                              hintStyle: const TextStyle(color: Colors.grey),
+                              labelStyle: GoogleFonts.getFont(
+                                'Nunito Sans',
+                                fontSize: 14,
+                                letterSpacing: 0.1,
+                              ),
+                              prefixIcon: Icon(Icons.people))),
+                    ),
                     SizedBox(
                       height: 20,
                     ),
-                    TextFormField(
-                        obscureText: visibile,
-                        enableSuggestions: false,
-                        autocorrect: false,
-                        controller: password,
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'inserisci password';
-                          } else
-                            return null;
-                        },
-                        decoration: InputDecoration(
-                            errorStyle: TextStyle(color: Colors.white),
-                            fillColor: Colors.white,
-                            filled: true,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            //focusedBorder: InputBorder.none,
-                            //enabledBorder: InputBorder.none,
-                            //labelText: 'password',
-                            hintText: 'password',
-                            hintStyle: const TextStyle(color: Colors.grey),
-                            labelStyle: GoogleFonts.getFont(
-                              'Nunito Sans',
-                              fontSize: 14,
-                              letterSpacing: 0.1,
-                            ),
-                            prefixIcon: Icon(Icons.password),
-                            suffixIcon: IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    visibile = !visibile;
-                                  });
-                                },
-                                icon: Icon(Icons.visibility)))),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20.0, right: 20),
+                      child: TextFormField(
+                          obscureText: visibile,
+                          enableSuggestions: false,
+                          autocorrect: false,
+                          controller: password,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'inserisci password';
+                            } else
+                              return null;
+                          },
+                          decoration: InputDecoration(
+                              errorStyle: TextStyle(color: Colors.white),
+                              fillColor: Colors.white,
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              //focusedBorder: InputBorder.none,
+                              //enabledBorder: InputBorder.none,
+                              //labelText: 'password',
+                              hintText: 'password',
+                              hintStyle: const TextStyle(color: Colors.grey),
+                              labelStyle: GoogleFonts.getFont(
+                                'Nunito Sans',
+                                fontSize: 14,
+                                letterSpacing: 0.1,
+                              ),
+                              prefixIcon: Icon(Icons.password),
+                              suffixIcon: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      visibile = !visibile;
+                                    });
+                                  },
+                                  icon: Icon(Icons.visibility)))),
+                    ),
                     const SizedBox(
                       height: 40,
                     ),
@@ -282,6 +293,13 @@ class _LoginState extends State<Login> {
                           ),
                         ),
                       ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Text(
+                        "ver. 1.0.0",
+                        style: TextStyle(color: Colors.grey.shade400),
+                      ),
                     ),
                   ],
                 ),

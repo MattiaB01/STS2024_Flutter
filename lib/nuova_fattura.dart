@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sts/models/fattura.dart';
 import 'package:sts/proprietario.dart';
 import 'package:sts/dati_proprietario.dart';
 import 'sts_db.dart';
@@ -17,13 +18,18 @@ TextEditingController dataFat = TextEditingController();
 TextEditingController dataPag = TextEditingController();
 TextEditingController nFat = TextEditingController();
 TextEditingController importo = TextEditingController();
+TextEditingController importo2 = TextEditingController();
 TextEditingController nDisp = TextEditingController();
 String? cfUtente;
+String? nomeUtente;
+String? cognomeUtente;
+
 final proxy = Proxy().getProxy();
 
 bool anticip = false;
 bool opposiz = false;
 bool tracciato = true;
+bool aggiungi = false;
 
 SQLite slq = SQLite();
 //dati per invio
@@ -61,10 +67,12 @@ class _nuovaFattura extends State<nuovaFattura> {
     dataPag.clear();
     importo.clear();
     nDisp.text = "1";
+    aggiungi = false;
   }
 
   String tipoSpesa = "SP";
   String natIva = "N2.2";
+  String natIva2 = "N2.2";
   //TK	FC	FV	AD	AS	SR	CT	PI	IC	AA	SV	SP
   var itemsSpesa = [
     "SP",
@@ -252,7 +260,7 @@ class _nuovaFattura extends State<nuovaFattura> {
                                   true, // Key property to handle text overflow
                               // Initial Value
                               value: cfUtente,
-                              onChanged: (String? newValue) {
+                              onChanged: (newValue) {
                                 setState(() {
                                   //newValue = menu;
                                   cfUtente = newValue;
@@ -435,6 +443,74 @@ class _nuovaFattura extends State<nuovaFattura> {
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
+                            child: Card(
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 15),
+                                    child: Text("Bollo"),
+                                  ),
+                                  //  Flexible(child: Text("data")),
+                                  Flexible(
+                                    child: Checkbox(
+                                      //  checkColor: Colors.blueAccent,
+                                      activeColor: Colors.blueAccent,
+                                      // title: Text("Bollo"),
+                                      value: aggiungi,
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          aggiungi = newValue!;
+                                        });
+                                      },
+                                      //  controlAffinity: ListTileControlAffinity
+                                      //    .leading, //  <-- leading Checkbox
+                                    ),
+                                  ),
+                                  Flexible(
+                                      child: SizedBox(
+                                    width: 100,
+                                    child: TextField(
+                                        enabled: aggiungi,
+                                        controller: importo2,
+                                        keyboardType: TextInputType.number,
+                                        decoration: const InputDecoration(
+                                          labelStyle: TextStyle(fontSize: 10),
+                                          prefixIcon: Icon(Icons.payment),
+                                          labelText: 'importo',
+                                        )),
+                                  )),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text('Natura Iva'),
+                                  ),
+                                  DropdownButton<String>(
+                                    value: natIva2,
+
+                                    // Array list of items
+                                    items: !aggiungi
+                                        ? []
+                                        : itemsNatIva.map((String items) {
+                                            return DropdownMenuItem(
+                                              value: items,
+                                              child: Text(items),
+                                            );
+                                          }).toList(),
+                                    // After selecting the desired option,it will
+                                    // change button value to selected value
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        natIva2 = newValue!;
+                                      });
+                                    },
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
                             child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
@@ -524,6 +600,8 @@ class _nuovaFattura extends State<nuovaFattura> {
             }));
   }
 
+  Future<void> salvaFattura() async {}
+
   Future<void> invia() async {
     setState(() {
       isLoading = true;
@@ -545,6 +623,18 @@ class _nuovaFattura extends State<nuovaFattura> {
       final prefs = await SharedPreferences.getInstance();
       final username = prefs.getString('username') ?? 0;
 
+      //late final aggiunta;
+      late final imp2;
+      late final naturaBollo;
+      if (aggiungi) {
+        //aggiunta = "SI";
+        imp2 = importo2.text;
+        naturaBollo = natIva2;
+      } else {
+        //aggiunta = "";
+        imp2 = "";
+        naturaBollo = "";
+      }
       final body = jsonEncode({
         "proprietario": {
           /*
@@ -568,9 +658,9 @@ class _nuovaFattura extends State<nuovaFattura> {
           "impTot1": importo.text,
           "natIva1": natIva,
           "tipoSpesa": tipoSpesa,
-          "aggiungi": "",
-          "bollo": "",
-          "natIva2": "",
+          "aggiungi": aggiungi,
+          "bollo": imp2,
+          "natIva2": naturaBollo,
           "numDisp": nDisp.text,
           "tracciato": tracciato ? "SI" : "NO",
           "opposizione": opposiz ? "SI" : "NO",
@@ -589,7 +679,15 @@ class _nuovaFattura extends State<nuovaFattura> {
           print(response.body.toString());
           final res = response.body;
           risultato.text = res.toString();
-
+          //per controllare il corretto invio
+          String a = "";
+          for (int b = 0; b < 33; b++) {
+            a = a + res[b];
+          }
+          print("-->$a");
+          if (a == "Operazione eseguita correttamente") {
+            print("-->OK"); //invio corretto
+          }
           showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -640,6 +738,7 @@ class _nuovaFattura extends State<nuovaFattura> {
         );
       }
     } catch (e) {
+      print(e);
       showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -676,6 +775,7 @@ void invia() {
 */
   showError() async {
     await Future.delayed(Duration(microseconds: 1));
+
     showDialog(
         context: context,
         builder: (BuildContext context) {

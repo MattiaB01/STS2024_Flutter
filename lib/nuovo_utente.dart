@@ -25,7 +25,7 @@ class UtentiRoute extends StatelessWidget {
     });
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dati utente'),
+        title: const Text('Nuovo utente'),
         // backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         backgroundColor: Colors.blueAccent.withOpacity(0.9),
       ),

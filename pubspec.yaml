@@ -53,6 +53,16 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
 
+
+  flutter_native_splash: ^2.4.2
+
+ 
+flutter_native_splash:
+   color: "#ffffff"
+   image: assets/images/STS_Logo3.PNG
+
+
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

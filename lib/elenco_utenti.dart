@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sts/dettaglio_utente.dart';
 import 'utente.dart';
 import 'sts_db.dart';
 
@@ -14,6 +15,13 @@ class ElencoUtenti2 extends StatefulWidget {
 
 class _ElencoUtenti extends State<ElencoUtenti2> {
   Future<List<Utente>> lista = sql.utenti();
+  @override
+  // ignore: must_call_super
+  initState() {
+    // ignore: avoid_print
+    print("initState Called");
+    _setLun();
+  }
 
   Future<int> lun = sql.utenti().then((value) {
     return value.length;
@@ -75,54 +83,69 @@ class _ElencoUtenti extends State<ElencoUtenti2> {
                           padding: const EdgeInsets.all(10.0),
                           itemCount: utenti.length,
                           physics: const AlwaysScrollableScrollPhysics(),
-                          itemBuilder: (ctx, i) => Card(
-                                shape: RoundedRectangleBorder(),
-                                child: Row(children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text((i + 1).toString()),
-                                  ),
+                          itemBuilder: (ctx, i) => GestureDetector(
+                                onTap: () async {
+                                  await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => DettaglioUtente(
+                                            codfisc: utenti[i].cf)),
+                                  );
+                                  setState(() {
+                                    lista = sql.utenti();
+                                  });
+                                },
+                                child: Card(
+                                  shape: RoundedRectangleBorder(),
+                                  child: Row(children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text((i + 1).toString()),
+                                    ),
 
-                                  Expanded(child: Text(utenti[i].nome)),
-                                  Expanded(child: Text(utenti[i].cognome)),
-                                  Expanded(child: Text(utenti[i].cf)),
-                                  Expanded(
-                                      child:
-                                          SizedBox()), // per tenere icona alla fine
+                                    Expanded(child: Text(utenti[i].nome)),
+                                    Expanded(child: Text(utenti[i].cognome)),
+                                    Expanded(
+                                        flex: 2, child: Text(utenti[i].cf)),
+                                    /*  Expanded(
+                                        child:
+                                            SizedBox()),*/ // per tenere icona alla fine
 
-                                  IconButton(
-                                      onPressed: () => {
-                                            showDialog<String>(
-                                                context: context,
-                                                builder: (BuildContext
-                                                        context) =>
-                                                    AlertDialog(
-                                                      title: Text("Elimina"),
-                                                      content: Text(
-                                                          "Confermi l'eliminazione?"),
-                                                      actions: <Widget>[
-                                                        TextButton(
-                                                            onPressed: () =>
-                                                                Navigator.pop(
-                                                                    context,
-                                                                    'Cancel'),
+                                    IconButton(
+                                        onPressed: () => {
+                                              showDialog<String>(
+                                                  context: context,
+                                                  builder: (BuildContext
+                                                          context) =>
+                                                      AlertDialog(
+                                                        title: Text("Elimina"),
+                                                        content: Text(
+                                                            "Confermi l'eliminazione?"),
+                                                        actions: <Widget>[
+                                                          TextButton(
+                                                              onPressed: () =>
+                                                                  Navigator.pop(
+                                                                      context,
+                                                                      'Cancel'),
+                                                              child: Text(
+                                                                  "Annulla")),
+                                                          TextButton(
+                                                            onPressed: () => {
+                                                              elimina(
+                                                                  utenti[i].cf),
+                                                              Navigator.pop(
+                                                                  context,
+                                                                  'Ok'),
+                                                            },
                                                             child: Text(
-                                                                "Annulla")),
-                                                        TextButton(
-                                                          onPressed: () => {
-                                                            elimina(
-                                                                utenti[i].cf),
-                                                            Navigator.pop(
-                                                                context, 'Ok'),
-                                                          },
-                                                          child:
-                                                              Text("Conferma"),
-                                                        )
-                                                      ],
-                                                    ))
-                                          },
-                                      icon: Icon(Icons.delete)),
-                                ]),
+                                                                "Conferma"),
+                                                          )
+                                                        ],
+                                                      ))
+                                            },
+                                        icon: Icon(Icons.delete)),
+                                  ]),
+                                ),
                               ));
                     } else {
                       // if no data, show simple Text

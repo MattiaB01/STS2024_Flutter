@@ -116,7 +116,7 @@ class _MyAppState extends State<MyHomePage> {
                   width: 70,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 15), //altezza scritte da icone
               Center(
                 child: Text(
                   title,
@@ -144,8 +144,17 @@ class _MyAppState extends State<MyHomePage> {
         leading: Icon(Icons.account_box),
         // backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         backgroundColor: Colors.blueAccent.withOpacity(0.9),
-        title: Text(widget.title,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500)),
+        title: ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: Image.asset(
+            'assets/images/STS_Logo2.PNG',
+            fit: BoxFit.cover,
+          ),
+        ),
+
+        //title:
+        //Text(widget.title,
+        // style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500)),
         actions: [
           /*    IconButton(
             onPressed: () {},
@@ -240,7 +249,8 @@ class _MyAppState extends State<MyHomePage> {
             ),
           ),
           const SizedBox(height: 20),
-          Expanded(
+          Container(
+            height: 650,
             child: GridView.count(
               crossAxisCount: 2,
               padding: const EdgeInsets.all(2),
@@ -255,6 +265,14 @@ class _MyAppState extends State<MyHomePage> {
               ],
             ),
           ),
+          /* Image.asset(
+            'assets/images/STS_Logo2.PNG',
+
+            fit: BoxFit.cover,
+
+            // width: 300,
+            // height: 300,
+          ),*/
         ],
       ),
     );

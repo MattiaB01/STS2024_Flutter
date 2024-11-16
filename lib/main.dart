@@ -12,6 +12,9 @@ class Sts extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
     precacheImage(const AssetImage("assets/images/sfondo.jpg"), context);

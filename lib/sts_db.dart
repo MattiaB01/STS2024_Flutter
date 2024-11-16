@@ -1,4 +1,6 @@
 import 'dart:math';
+import 'package:sts/models/fattura.dart';
+
 import 'user.dart';
 
 import 'dart:async';
@@ -72,6 +74,49 @@ class SQLite {
             email TEXT
           )
  """);
+
+    await db.execute(""" CREATE TABLE IF NOT EXISTS fatture(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            proprietario TEXT,
+            cf TEXT,
+            nome TEXT, 
+            cognome TEXT,
+            importo1 REAL,
+            dataFat TEXT,
+            dataPag TEXT,
+            aggiungi TEXT,
+            importo2 REAL,
+            protocollo INTEGER,
+            opposizione TEXT,
+            anticipato TEXT,
+            tracciato TEXT,
+            nDisp TEXT,
+            tipoSpesa TEXT,
+            natIva1 TEXT,
+            natIva2 TEXT,
+            nFat TEXT
+          )
+ """);
+  }
+
+  //QUIQQU98A01H501H
+  //Salve123
+  //3167676525
+  //65432109876
+
+  Future<Fattura?> insertFattura(Fattura fattura) async {
+    final db = await database;
+    try {
+      db.insert(
+        "fatture",
+        fattura.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      return fattura;
+    } on DatabaseException catch (e) {
+      return null;
+    }
+    return null;
   }
 
   Future<List<Utente>> utenti() async {
