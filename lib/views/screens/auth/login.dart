@@ -36,7 +36,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blueAccent.withOpacity(0.9),
+      backgroundColor: const Color.fromARGB(255, 68, 138, 255).withOpacity(0.9),
       body: Container(
         /*decoration: BoxDecoration(
             image: DecorationImage(
