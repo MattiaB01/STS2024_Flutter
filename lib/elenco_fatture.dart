@@ -45,130 +45,139 @@ class _ElencoUtenti extends State<ElencoFatture> {
           //backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           backgroundColor: Colors.blueAccent.withOpacity(0.9),
         ),
-        body: Column(
-          children: [
-            const Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: const Card(
-                shape: RoundedRectangleBorder(),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Expanded(flex: 3, child: Text('N.')),
+        body: SafeArea(
+          child: Scrollbar(
+            child: Column(
+              children: [
+                const Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: const Card(
+                    shape: RoundedRectangleBorder(),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text('N.'),
+                        ),
+                        Expanded(flex: 6, child: Text('Cod.Fisc.')),
+                        Expanded(flex: 12, child: Text('Data')),
+                        Expanded(flex: 14, child: Text('Protocollo')),
+                      ],
                     ),
-                    Expanded(flex: 6, child: Text('Cod.Fisc.')),
-                    Expanded(flex: 12, child: Text('Data')),
-                    Expanded(flex: 14, child: Text('Protocollo')),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-            Expanded(
-              child: FutureBuilder<List<dynamic>>(
-                  future: response,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      // until data is fetched, show loader
-                      return const SizedBox(
-                        child: Center(child: CircularProgressIndicator()),
-                      );
-                    } else if (!snapshot.data!.isEmpty) {
-                      // once data is fetched, display it on screen (call buildPosts())
-                      print("dati: " + snapshot.data!.isEmpty.toString());
-                      final fattura = snapshot.data!;
+                Expanded(
+                  child: FutureBuilder<List<dynamic>>(
+                      future: response,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          // until data is fetched, show loader
+                          return const SizedBox(
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        } else if (!snapshot.data!.isEmpty) {
+                          // once data is fetched, display it on screen (call buildPosts())
+                          print("dati: " + snapshot.data!.isEmpty.toString());
+                          final fattura = snapshot.data!;
 
-                      return ListView.builder(
-                          padding: const EdgeInsets.all(8.0),
-                          itemCount: fattura.length,
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          itemBuilder: (ctx, i) => GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            DettagliFatture()),
-                                  );
-                                },
-                                child: Card(
-                                  shape: RoundedRectangleBorder(),
-                                  child: Row(children: [
-                                    Expanded(
-                                        flex: 6,
-                                        child: Text(fattura[i]['nFat'])),
-                                    Expanded(
-                                        flex: 16,
-                                        child: (fattura[i]['cf'] != null)
-                                            ? Text(fattura[i]['cf'])
-                                            : Text('vuoto')),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(fattura[i]['dataFat']),
-                                    ),
+                          return ListView.builder(
+                              padding: const EdgeInsets.all(8.0),
+                              itemCount: fattura.length,
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              itemBuilder: (ctx, i) => GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                DettagliFatture()),
+                                      );
+                                    },
+                                    child: Card(
+                                      shape: RoundedRectangleBorder(),
+                                      child: Row(children: [
+                                        Expanded(
+                                            flex: 6,
+                                            child: Text(fattura[i]['nFat'])),
+                                        Expanded(
+                                            flex: 16,
+                                            child: (fattura[i]['cf'] != null)
+                                                ? Text(fattura[i]['cf'])
+                                                : Text('vuoto')),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(fattura[i]['dataFat']),
+                                        ),
 
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                          fattura[i]['protocollo'] ?? 'vuoto'),
-                                    ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(fattura[i]
+                                                  ['protocollo'] ??
+                                              'vuoto'),
+                                        ),
 
-                                    // Expanded(child: Text(utenti[i].cf)),
-                                    Expanded(
-                                        child:
-                                            SizedBox()), // per tenere icona alla fine
-                                    /* IconButton(
-                                      onPressed: () {},
-                                      icon: Icon(Icons.update),
-                                    ),*/
-                                    IconButton(
-                                        onPressed: () {
-                                          showDialog<String>(
-                                              context: context,
-                                              builder: (BuildContext context) =>
-                                                  AlertDialog(
-                                                    title: Text("Elimina"),
-                                                    content: Text(
-                                                        "Confermi l'eliminazione?"),
-                                                    actions: <Widget>[
-                                                      TextButton(
-                                                          onPressed: () =>
+                                        // Expanded(child: Text(utenti[i].cf)),
+                                        Expanded(
+                                            child:
+                                                SizedBox()), // per tenere icona alla fine
+                                        /* IconButton(
+                                          onPressed: () {},
+                                          icon: Icon(Icons.update),
+                                        ),*/
+                                        IconButton(
+                                            onPressed: () {
+                                              showDialog<String>(
+                                                  context: context,
+                                                  builder: (BuildContext
+                                                          context) =>
+                                                      AlertDialog(
+                                                        title: Text("Elimina"),
+                                                        content: Text(
+                                                            "Confermi l'eliminazione?"),
+                                                        actions: <Widget>[
+                                                          TextButton(
+                                                              onPressed: () =>
+                                                                  Navigator.pop(
+                                                                      context,
+                                                                      'Cancel'),
+                                                              child: Text(
+                                                                  "Annulla")),
+                                                          TextButton(
+                                                            onPressed: () => {
+                                                              print(fattura[i][
+                                                                  'protocollo']),
+                                                              id = fattura[i][
+                                                                  'protocollo'],
+                                                              deleteFattura(),
                                                               Navigator.pop(
                                                                   context,
-                                                                  'Cancel'),
-                                                          child:
-                                                              Text("Annulla")),
-                                                      TextButton(
-                                                        onPressed: () => {
-                                                          print(fattura[i]
-                                                              ['protocollo']),
-                                                          id = fattura[i]
-                                                              ['protocollo'],
-                                                          deleteFattura(),
-                                                          Navigator.pop(
-                                                              context, 'Ok'),
-                                                        },
-                                                        child: Text("Conferma"),
-                                                      )
-                                                    ],
-                                                  ));
-                                        }, // => elimina(utenti[i].cf),
-                                        icon: Icon(Icons.delete)),
-                                  ]),
-                                ),
-                              ));
-                    } else {
-                      // if no data, show simple Text
-                      print("vuoto");
-                      return Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: (const Text("Nessuna fattura trovata")),
-                      );
-                    }
-                  }),
-            )
-          ],
+                                                                  'Ok'),
+                                                            },
+                                                            child: Text(
+                                                                "Conferma"),
+                                                          )
+                                                        ],
+                                                      ));
+                                            }, // => elimina(utenti[i].cf),
+                                            icon: Icon(Icons.delete)),
+                                      ]),
+                                    ),
+                                  ));
+                        } else {
+                          // if no data, show simple Text
+                          print("vuoto");
+                          return Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: (const Text("Nessuna fattura trovata")),
+                          );
+                        }
+                      }),
+                )
+              ],
+            ),
+          ),
         ));
   }
 
