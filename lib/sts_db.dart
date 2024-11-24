@@ -77,6 +77,7 @@ class SQLite {
 
     await db.execute(""" CREATE TABLE IF NOT EXISTS fatture(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT,
             proprietario TEXT,
             cf TEXT,
             nome TEXT, 
@@ -171,7 +172,9 @@ class SQLite {
           "$cf  $nome $cognome",
       ];
     } on Exception {
-      throw Exception('error fetching data');
+      //throw Exception('error fetching data');
+      List<String> a = [];
+      return a;
     }
   }
 

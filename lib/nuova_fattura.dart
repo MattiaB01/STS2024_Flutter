@@ -120,484 +120,528 @@ class _nuovaFattura extends State<nuovaFattura> {
   Future<List<String>> lista = sql.utentiMenu();
   Future<List<Utente>> lista2 = sql.utenti();
 
+  final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     //ottieniLista();
     //print('lista: $_lista');
-    return Container(
-        child: FutureBuilder<List<Utente>>(
-            future: lista2,
-            builder: (context, data) {
-              //mentre è in attesa
-              if (data.connectionState == ConnectionState.waiting) {
-                // until data is fetched, show loader
-                return const CircularProgressIndicator();
-              } else if (data.data!.isNotEmpty) {
-                //var menu = data.data![0].cf;
-                // cfUtente = menu;
-                return Scaffold(
-                  body: SingleChildScrollView(
-                    child: Form(
-                      child: Column(
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Card(
-                              child: Column(
-                                children: [
-                                  ListTile(
-                                    leading: Icon(Icons.wrap_text),
-                                    title: Text(
-                                        'Inserisci i dati della fattura da inviare'),
-                                  )
-                                ],
+    return Form(
+      key: _formKey,
+      child: Container(
+          child: FutureBuilder<List<Utente>>(
+              future: lista2,
+              builder: (context, data) {
+                //mentre è in attesa
+                if (data.connectionState == ConnectionState.waiting) {
+                  // until data is fetched, show loader
+                  return const CircularProgressIndicator();
+                } else if (data.data!.isNotEmpty) {
+                  //var menu = data.data![0].cf;
+                  // cfUtente = menu;
+                  return Scaffold(
+                    body: SingleChildScrollView(
+                      child: Form(
+                        child: Column(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Card(
+                                child: Column(
+                                  children: [
+                                    ListTile(
+                                      leading: Icon(Icons.wrap_text),
+                                      title: Text(
+                                          'Inserisci i dati della fattura da inviare'),
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          Row(children: [
-                            Flexible(
-                                child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: SizedBox(
-                                width: 100,
-                                height: 50,
+                            Row(children: [
+                              Flexible(
+                                  child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: SizedBox(
+                                  width: 100,
+                                  height: 50,
+                                  child: TextField(
+                                      controller: nFat,
+                                      decoration: const InputDecoration(
+                                          prefixIcon: Icon(Icons.inventory),
+                                          labelText: 'N.Fat.',
+                                          floatingLabelStyle: TextStyle(
+                                            fontSize: 14,
+                                          ),
+                                          labelStyle: TextStyle(
+                                            fontSize: 10,
+                                          ))),
+                                ),
+                              )),
+                              Flexible(
+                                  child: Padding(
+                                padding: const EdgeInsets.all(4.0),
                                 child: TextField(
-                                    controller: nFat,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                    controller: dataFat,
                                     decoration: const InputDecoration(
-                                        prefixIcon: Icon(Icons.inventory),
-                                        labelText: 'N.Fat.',
-                                        floatingLabelStyle: TextStyle(
-                                          fontSize: 14,
-                                        ),
+                                        icon: Icon(Icons.calendar_today),
                                         labelStyle: TextStyle(
                                           fontSize: 10,
-                                        ))),
-                              ),
-                            )),
-                            Flexible(
-                                child: Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: TextField(
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                  ),
-                                  controller: dataFat,
-                                  decoration: const InputDecoration(
-                                      icon: Icon(Icons.calendar_today),
-                                      labelStyle: TextStyle(
-                                        fontSize: 10,
-                                      ),
-                                      labelText: "Data Fattura",
-                                      floatingLabelStyle: TextStyle(
-                                        fontSize: 14,
-                                      )),
-                                  readOnly: true,
-                                  onTap: () async {
-                                    DateTime? pickedDate = await showDatePicker(
-                                      context: context,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime(2023),
-                                      lastDate: DateTime(2040),
-                                    );
+                                        ),
+                                        labelText: "Data Fattura",
+                                        floatingLabelStyle: TextStyle(
+                                          fontSize: 14,
+                                        )),
+                                    readOnly: true,
+                                    onTap: () async {
+                                      DateTime? pickedDate =
+                                          await showDatePicker(
+                                        context: context,
+                                        initialDate: DateTime.now(),
+                                        firstDate: DateTime(2023),
+                                        lastDate: DateTime(2040),
+                                      );
 
-                                    if (pickedDate != null) {
-                                      print(pickedDate);
-                                      String formatDate =
-                                          DateFormat('dd/MM/yyyy')
-                                              .format(pickedDate);
-                                      print(formatDate);
+                                      if (pickedDate != null) {
+                                        print(pickedDate);
+                                        String formatDate =
+                                            DateFormat('dd/MM/yyyy')
+                                                .format(pickedDate);
+                                        print(formatDate);
 
-                                      setState(() {
-                                        dataFat.text = formatDate;
-                                      });
-                                    }
-                                  }),
-                            )),
-                            Flexible(
-                                child: Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: TextField(
-                                  style: TextStyle(fontSize: 14),
-                                  controller: dataPag,
-                                  decoration: const InputDecoration(
-                                      icon: Icon(Icons.calendar_today),
-                                      labelText: "Data Pagamento",
-                                      labelStyle: TextStyle(
-                                        fontSize: 10,
-                                      ),
-                                      floatingLabelStyle: TextStyle(
-                                        fontSize: 14,
-                                      )),
-                                  readOnly: true,
-                                  onTap: () async {
-                                    DateTime? pickedDate = await showDatePicker(
-                                      context: context,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime(2023),
-                                      lastDate: DateTime(2040),
-                                    );
-
-                                    if (pickedDate != null) {
-                                      print(pickedDate);
-                                      String formatDate =
-                                          DateFormat('dd/MM/yyyy')
-                                              .format(pickedDate);
-                                      print(formatDate);
-
-                                      setState(() {
-                                        dataPag.text = formatDate;
-                                      });
-                                    }
-                                  }),
-                            )),
-                          ]),
-                          Padding(
-                            padding: const EdgeInsets.all(9.0),
-                            child: DropdownButton<String>(
-                              hint: Text('seleziona un utente'),
-                              isDense: true,
-                              isExpanded:
-                                  true, // Key property to handle text overflow
-                              // Initial Value
-                              value: cfUtente,
-                              onChanged: (newValue) {
-                                setState(() {
-                                  //newValue = menu;
-                                  cfUtente = newValue;
-                                });
-                              },
-
-                              // Down Arrow Icon
-                              icon: const Icon(Icons.keyboard_arrow_down),
-                              // Array list of items
-                              items: data.data?.map((Utente items) {
-                                String utente = items.cognome +
-                                    " " +
-                                    items.nome +
-                                    " " +
-                                    items.cf;
-
-                                return DropdownMenuItem(
-                                  value: items.cf,
-                                  child: Text(
-                                    utente,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                );
-                              }).toList(),
-                              // After selecting the desired option,it will
-                              // change button value to selected value
-                            ),
-                          ),
-                          Row(
-                            children: <Widget>[
-                              Flexible(
-                                  child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: SizedBox(
-                                  width: 120,
-                                  height: 50,
-                                  child: TextField(
-                                      controller: importo,
-                                      keyboardType: TextInputType.number,
-                                      decoration: const InputDecoration(
-                                        labelStyle: TextStyle(fontSize: 10),
-                                        prefixIcon: Icon(Icons.payment),
-                                        labelText: 'importo',
-                                      )),
-                                ),
+                                        setState(() {
+                                          dataFat.text = formatDate;
+                                        });
+                                      }
+                                    }),
                               )),
                               Flexible(
                                   child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: SizedBox(
-                                  width: 120,
-                                  height: 50,
-                                  child: TextField(
-                                      controller: nDisp,
-                                      keyboardType: TextInputType.number,
-                                      decoration: const InputDecoration(
-                                        labelStyle: TextStyle(fontSize: 10),
-                                        prefixIcon: Icon(Icons.devices),
-                                        labelText: 'n.Dispositivo',
-                                      )),
-                                ),
-                              )),
-                              Padding(
-                                padding: const EdgeInsets.only(right: 10.0),
-                                child: DropdownMenu<String>(
-                                  initialSelection: "SP",
-                                  label: const Text("Tipo spesa"),
-                                  dropdownMenuEntries:
-                                      itemsSpesa.map((String items) {
-                                    return DropdownMenuEntry(
-                                      value: items,
-                                      label: items,
-                                    );
-                                  }).toList(),
-                                  onSelected: (String? spesa) {
-                                    setState(() {
-                                      tipoSpesa = spesa!;
-                                    });
-                                  },
-                                ),
-                              )
+                                padding: const EdgeInsets.all(4.0),
+                                child: TextField(
+                                    style: TextStyle(fontSize: 14),
+                                    controller: dataPag,
+                                    decoration: const InputDecoration(
+                                        icon: Icon(Icons.calendar_today),
+                                        labelText: "Data Pagamento",
+                                        labelStyle: TextStyle(
+                                          fontSize: 10,
+                                        ),
+                                        floatingLabelStyle: TextStyle(
+                                          fontSize: 14,
+                                        )),
+                                    readOnly: true,
+                                    onTap: () async {
+                                      DateTime? pickedDate =
+                                          await showDatePicker(
+                                        context: context,
+                                        initialDate: DateTime.now(),
+                                        firstDate: DateTime(2023),
+                                        lastDate: DateTime(2040),
+                                      );
 
-                              /*DropdownButton<String>(
-                                value: tipoSpesa,
+                                      if (pickedDate != null) {
+                                        print(pickedDate);
+                                        String formatDate =
+                                            DateFormat('dd/MM/yyyy')
+                                                .format(pickedDate);
+                                        print(formatDate);
+
+                                        setState(() {
+                                          dataPag.text = formatDate;
+                                        });
+                                      }
+                                    }),
+                              )),
+                            ]),
+                            Padding(
+                              padding: const EdgeInsets.all(9.0),
+                              child: DropdownButton<String>(
+                                hint: Text('seleziona un utente'),
+                                isDense: true,
+                                isExpanded:
+                                    true, // Key property to handle text overflow
+                                // Initial Value
+                                value: cfUtente,
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    //newValue = menu;
+                                    cfUtente = newValue;
+                                  });
+                                },
+
+                                // Down Arrow Icon
+                                icon: const Icon(Icons.keyboard_arrow_down),
                                 // Array list of items
-                                items: itemsSpesa.map((String items) {
+                                items: data.data?.map((Utente items) {
+                                  String utente = items.cognome +
+                                      " " +
+                                      items.nome +
+                                      " " +
+                                      items.cf;
+
                                   return DropdownMenuItem(
-                                    value: items,
-                                    child: Text(items),
+                                    value: items.cf,
+                                    child: Text(
+                                      utente,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   );
                                 }).toList(),
                                 // After selecting the desired option,it will
                                 // change button value to selected value
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    tipoSpesa = newValue!;
-                                  });
-                                },
-                              ),*/
-                            ],
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Card(
-                                child: Column(children: [
-                              Row(children: [
-                                const Padding(
-                                  padding: EdgeInsets.all(10.0),
-                                  child: Text(' Anticipato'),
-                                ),
-                                Switch(
-                                    // This bool value toggles the switch.
-
-                                    value: anticip,
-                                    activeColor: Colors.blueAccent,
-                                    onChanged: (bool value) {
-                                      // This is called when the user toggles the switch.
-                                      setState(() {
-                                        anticip = value;
-                                      });
-                                    }),
-                                const Padding(
-                                  padding: EdgeInsets.all(10.0),
-                                  child: Text('Opposizione'),
-                                ),
-                                Switch(
-                                    // This bool value toggles the switch.
-
-                                    value: opposiz,
-                                    activeColor: Colors.blueAccent,
-                                    onChanged: (bool value) {
-                                      // This is called when the user toggles the switch.
-                                      setState(() {
-                                        opposiz = value;
-                                      });
-                                    }),
-                              ]),
-                              Row(children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: const Text(' Tracciato  '),
-                                ),
-                                Switch(
-                                    // This bool value toggles the switch.
-
-                                    value: tracciato,
-                                    activeColor: Colors.blueAccent,
-                                    onChanged: (bool value) {
-                                      // This is called when the user toggles the switch.
-                                      setState(() {
-                                        tracciato = value;
-                                      });
-                                    }),
-                                Padding(
+                              ),
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Flexible(
+                                    child: Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: Text('Natura Iva'),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 20),
-                                  child: DropdownButton<String>(
-                                    value: natIva,
-                                    // Array list of items
-                                    items: itemsNatIva.map((String items) {
-                                      return DropdownMenuItem(
-                                        value: items,
-                                        child: Text(items),
-                                      );
-                                    }).toList(),
-                                    // After selecting the desired option,it will
-                                    // change button value to selected value
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        natIva = newValue!;
-                                      });
-                                    },
-                                  ),
-                                )
-                              ]),
-                            ])),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Card(
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 15),
-                                    child: Text("Bollo"),
-                                  ),
-                                  //  Flexible(child: Text("data")),
-                                  Flexible(
-                                    child: Checkbox(
-                                      //  checkColor: Colors.blueAccent,
-                                      activeColor: Colors.blueAccent,
-                                      // title: Text("Bollo"),
-                                      value: aggiungi,
-                                      onChanged: (newValue) {
-                                        setState(() {
-                                          aggiungi = newValue!;
-                                        });
-                                      },
-                                      //  controlAffinity: ListTileControlAffinity
-                                      //    .leading, //  <-- leading Checkbox
-                                    ),
-                                  ),
-                                  Flexible(
-                                      child: SizedBox(
-                                    width: 100,
+                                  child: SizedBox(
+                                    width: 120,
+                                    height: 50,
                                     child: TextField(
-                                        enabled: aggiungi,
-                                        controller: importo2,
+                                        controller: importo,
                                         keyboardType: TextInputType.number,
                                         decoration: const InputDecoration(
                                           labelStyle: TextStyle(fontSize: 10),
                                           prefixIcon: Icon(Icons.payment),
                                           labelText: 'importo',
                                         )),
-                                  )),
+                                  ),
+                                )),
+                                Flexible(
+                                    child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: SizedBox(
+                                    width: 120,
+                                    height: 50,
+                                    child: TextField(
+                                        controller: nDisp,
+                                        keyboardType: TextInputType.number,
+                                        decoration: const InputDecoration(
+                                          labelStyle: TextStyle(fontSize: 10),
+                                          prefixIcon: Icon(Icons.devices),
+                                          labelText: 'n.Dispositivo',
+                                        )),
+                                  ),
+                                )),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 10.0),
+                                  child: DropdownMenu<String>(
+                                    initialSelection: "SP",
+                                    label: const Text("Tipo spesa"),
+                                    dropdownMenuEntries:
+                                        itemsSpesa.map((String items) {
+                                      return DropdownMenuEntry(
+                                        value: items,
+                                        label: items,
+                                      );
+                                    }).toList(),
+                                    onSelected: (String? spesa) {
+                                      setState(() {
+                                        tipoSpesa = spesa!;
+                                      });
+                                    },
+                                  ),
+                                )
+
+                                /*DropdownButton<String>(
+                                  value: tipoSpesa,
+                                  // Array list of items
+                                  items: itemsSpesa.map((String items) {
+                                    return DropdownMenuItem(
+                                      value: items,
+                                      child: Text(items),
+                                    );
+                                  }).toList(),
+                                  // After selecting the desired option,it will
+                                  // change button value to selected value
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      tipoSpesa = newValue!;
+                                    });
+                                  },
+                                ),*/
+                              ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Card(
+                                  child: Column(children: [
+                                Row(children: [
+                                  const Padding(
+                                    padding: EdgeInsets.all(10.0),
+                                    child: Text(' Anticipato'),
+                                  ),
+                                  Switch(
+                                      // This bool value toggles the switch.
+
+                                      value: anticip,
+                                      activeColor: Colors.blueAccent,
+                                      onChanged: (bool value) {
+                                        // This is called when the user toggles the switch.
+                                        setState(() {
+                                          anticip = value;
+                                        });
+                                      }),
+                                  const Padding(
+                                    padding: EdgeInsets.all(10.0),
+                                    child: Text('Opposizione'),
+                                  ),
+                                  Switch(
+                                      // This bool value toggles the switch.
+
+                                      value: opposiz,
+                                      activeColor: Colors.blueAccent,
+                                      onChanged: (bool value) {
+                                        // This is called when the user toggles the switch.
+                                        setState(() {
+                                          opposiz = value;
+                                        });
+                                      }),
+                                ]),
+                                Row(children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: const Text(' Tracciato  '),
+                                  ),
+                                  Switch(
+                                      // This bool value toggles the switch.
+
+                                      value: tracciato,
+                                      activeColor: Colors.blueAccent,
+                                      onChanged: (bool value) {
+                                        // This is called when the user toggles the switch.
+                                        setState(() {
+                                          tracciato = value;
+                                        });
+                                      }),
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Text('Natura Iva'),
                                   ),
-                                  DropdownButton<String>(
-                                    value: natIva2,
-
-                                    // Array list of items
-                                    items: !aggiungi
-                                        ? []
-                                        : itemsNatIva.map((String items) {
-                                            return DropdownMenuItem(
-                                              value: items,
-                                              child: Text(items),
-                                            );
-                                          }).toList(),
-                                    // After selecting the desired option,it will
-                                    // change button value to selected value
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        natIva2 = newValue!;
-                                      });
-                                    },
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 20),
+                                    child: DropdownButton<String>(
+                                      value: natIva,
+                                      // Array list of items
+                                      items: itemsNatIva.map((String items) {
+                                        return DropdownMenuItem(
+                                          value: items,
+                                          child: Text(items),
+                                        );
+                                      }).toList(),
+                                      // After selecting the desired option,it will
+                                      // change button value to selected value
+                                      onChanged: (String? newValue) {
+                                        setState(() {
+                                          natIva = newValue!;
+                                        });
+                                      },
+                                    ),
                                   )
-                                ],
+                                ]),
+                              ])),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Card(
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 15),
+                                      child: Text("Bollo"),
+                                    ),
+                                    //  Flexible(child: Text("data")),
+                                    Flexible(
+                                      child: Checkbox(
+                                        //  checkColor: Colors.blueAccent,
+                                        activeColor: Colors.blueAccent,
+                                        // title: Text("Bollo"),
+                                        value: aggiungi,
+                                        onChanged: (newValue) {
+                                          setState(() {
+                                            aggiungi = newValue!;
+                                          });
+                                        },
+                                        //  controlAffinity: ListTileControlAffinity
+                                        //    .leading, //  <-- leading Checkbox
+                                      ),
+                                    ),
+                                    Flexible(
+                                        child: SizedBox(
+                                      width: 100,
+                                      child: TextField(
+                                          enabled: aggiungi,
+                                          controller: importo2,
+                                          keyboardType: TextInputType.number,
+                                          decoration: const InputDecoration(
+                                            labelStyle: TextStyle(fontSize: 10),
+                                            prefixIcon: Icon(Icons.payment),
+                                            labelText: 'importo',
+                                          )),
+                                    )),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text('Natura Iva'),
+                                    ),
+                                    DropdownButton<String>(
+                                      value: natIva2,
+
+                                      // Array list of items
+                                      items: !aggiungi
+                                          ? []
+                                          : itemsNatIva.map((String items) {
+                                              return DropdownMenuItem(
+                                                value: items,
+                                                child: Text(items),
+                                              );
+                                            }).toList(),
+                                      // After selecting the desired option,it will
+                                      // change button value to selected value
+                                      onChanged: (String? newValue) {
+                                        setState(() {
+                                          natIva2 = newValue!;
+                                        });
+                                      },
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blueAccent,
-                                      foregroundColor: Colors.white,
-                                      shadowColor: Colors.black,
-                                    ),
-                                    onPressed: () {
-                                      invia();
-                                    },
-                                    child: isLoading
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.blueAccent,
+                                        foregroundColor: Colors.white,
+                                        shadowColor: Colors.black,
+                                      ),
+                                      onPressed: () {
+                                        cfUtente != null
+                                            ? invia()
+                                            : {
+                                                showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      {
+                                                        return AlertDialog(
+                                                          title: const Text(
+                                                              'Attenzione'),
+                                                          content: const Text(
+                                                            'Seleziona un utente.',
+                                                          ),
+                                                          actions: <Widget>[
+                                                            TextButton(
+                                                              style: TextButton
+                                                                  .styleFrom(
+                                                                textStyle: Theme.of(
+                                                                        context)
+                                                                    .textTheme
+                                                                    .labelLarge,
+                                                              ),
+                                                              child: const Text(
+                                                                  'Ok'),
+                                                              onPressed: () {
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+                                                              },
+                                                            ),
+                                                          ],
+                                                        );
+                                                      }
+                                                      ;
+                                                    })
+                                              };
+                                      },
+                                      child: isLoading
+                                          ? CircularProgressIndicator(
+                                              color: Colors.white,
+                                            )
+                                          : Text('Invia'),
+                                      /* isLoading
                                         ? CircularProgressIndicator(
-                                            color: Colors.white,
-                                          )
-                                        : Text('Invia'),
-                                    /* isLoading
-                                      ? CircularProgressIndicator(
-                                          color: Colors.white)
-                                      : Text('Invia')*/
-                                  ),
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blueAccent,
-                                      foregroundColor: Colors.white,
-                                      shadowColor: Colors.black,
+                                            color: Colors.white)
+                                        : Text('Invia')*/
                                     ),
-                                    onPressed: () {
-                                      initState();
-                                    },
-                                    child: Text('Nuovo'),
-                                    /* isLoading
-                                      ? CircularProgressIndicator(
-                                          color: Colors.white)
-                                      : Text('Invia')*/
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.blueAccent,
+                                        foregroundColor: Colors.white,
+                                        shadowColor: Colors.black,
+                                      ),
+                                      onPressed: () {
+                                        initState();
+                                      },
+                                      child: Text('Nuovo'),
+                                      /* isLoading
+                                        ? CircularProgressIndicator(
+                                            color: Colors.white)
+                                        : Text('Invia')*/
+                                    ),
+                                  ]),
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                    child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: TextField(
+                                    decoration: InputDecoration(
+                                      labelText: 'Esito operazione',
+                                    ),
+                                    controller: risultato,
+                                    enabled: false,
+                                    style: TextStyle(
+                                      color: (Colors.black),
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ]),
-                          ),
-                          Row(
-                            children: [
-                              Expanded(
-                                  child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                    labelText: 'Esito operazione',
-                                  ),
-                                  controller: risultato,
-                                  enabled: false,
-                                  style: TextStyle(
-                                    color: (Colors.black),
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              )),
-                            ],
-                          )
-                        ],
+                                )),
+                              ],
+                            )
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              } else {
-                print("vuoto");
-                return /* Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: (const Text("Nessun utente archiviato")),
-                );*/
+                  );
+                } else {
+                  print("vuoto");
+                  return /* Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: (const Text("Nessun utente archiviato")),
+                  );*/
 
-                    AlertDialog(
-                  backgroundColor: Colors.blueAccent.withOpacity(0.5),
-                  title: const Text('Attenzione:', textAlign: TextAlign.center),
-                  content: const Text(
-                      'Non puoi inviare fatture perchè\nnon hai registrato nessun utente.',
-                      textAlign: TextAlign.center),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, 'Ok'),
-                      child: const Text('Ok'),
-                    ),
-                  ],
-                );
-              }
-            }));
+                      AlertDialog(
+                    backgroundColor: Colors.blueAccent.withOpacity(0.5),
+                    title:
+                        const Text('Attenzione:', textAlign: TextAlign.center),
+                    content: const Text(
+                        'Non puoi inviare fatture perchè\nnon hai registrato nessun utente.',
+                        textAlign: TextAlign.center),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, 'Ok'),
+                        child: const Text('Ok'),
+                      ),
+                    ],
+                  );
+                }
+              })),
+    );
   }
 
   Future<void> salvaFattura() async {}
@@ -606,6 +650,7 @@ class _nuovaFattura extends State<nuovaFattura> {
     setState(() {
       isLoading = true;
     });
+
     try {
       List<Proprietario> prop = await sql.getProprietario();
 

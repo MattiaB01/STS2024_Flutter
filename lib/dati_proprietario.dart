@@ -126,7 +126,7 @@ class ProprietarioRoute extends StatelessWidget {
 
 void deleteDb() {
   sql.deleteDatabase();
-  sql.initWinDB();
+  SQLite();
 }
 
 void salva() {

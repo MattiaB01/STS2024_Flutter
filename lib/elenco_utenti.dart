@@ -6,7 +6,7 @@ import 'package:sts/dettaglio_utente.dart';
 import 'utente.dart';
 import 'sts_db.dart';
 
-SQLite sql = SQLite();
+//SQLite sql = SQLite();
 
 class ElencoUtenti2 extends StatefulWidget {
   @override
@@ -15,6 +15,7 @@ class ElencoUtenti2 extends StatefulWidget {
 
 class _ElencoUtenti extends State<ElencoUtenti2> {
   Future<List<Utente>> lista = sql.utenti();
+
   @override
   // ignore: must_call_super
   initState() {

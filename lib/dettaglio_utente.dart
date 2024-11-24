@@ -22,6 +22,7 @@ class DettaglioUtente extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Future<void> carica() async {
+      SQLite();
       Utente? utente = await sql.getUtenteByCf(codfisc);
 
       try {
@@ -304,7 +305,6 @@ Future<void> _salva(BuildContext context) async {
 }*/
 
 void _cancella() {
-  cf.clear();
   nome.clear();
   cognome.clear();
   indirizzo.clear();
