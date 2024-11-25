@@ -74,67 +74,63 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body: Column(children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Center(
-                child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: FilledButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const ProprietarioRoute()),
-                    );
-                  },
-                  child: Text('I tuoi dati')),
-            )),
-            FilledButton(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Center(
+              child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: FilledButton(
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const UtentiRoute()),
+                        builder: (context) => const ProprietarioRoute()),
                   );
                 },
-                child: Text('Nuovo utente')),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: FilledButton(
-                  onPressed: () async {
-                    bool a = await Auth.auth();
-                    bool test = true; //sostiture test nell'if
-                    if (test) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ElencoUtenti2()),
-                      );
-                    }
-                  },
-                  child: Text('Elenco utenti')),
-            ),
-            FilledButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => NuovaFattura()),
-                  );
+                child: Text('I tuoi dati')),
+          )),
+          FilledButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const UtentiRoute()),
+                );
+              },
+              child: Text('Nuovo utente')),
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: FilledButton(
+                onPressed: () async {
+                  bool a = await Auth.auth();
+                  bool test = true; //sostiture test nell'if
+                  if (test) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ElencoUtenti2()),
+                    );
+                  }
                 },
-                child: Text('Nuova fattura')),
-            FilledButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ElencoFatture()),
-                  );
-                },
-                child: Text('Elenco fatture')),
-          ],
-        ),
-      ]),
+                child: Text('Elenco utenti')),
+          ),
+          FilledButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => NuovaFattura()),
+                );
+              },
+              child: Text('Nuova fattura')),
+          FilledButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ElencoFatture()),
+                );
+              },
+              child: Text('Elenco fatture')),
+        ],
+      ),
 
       // This trailing comma makes auto-formatting nicer for build methods.
     );

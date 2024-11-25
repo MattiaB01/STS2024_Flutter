@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:sts/models/fattura.dart';
+import 'package:sts/nuova_fattura.dart';
 
 import 'user.dart';
 
@@ -87,11 +88,11 @@ class SQLite {
             dataPag TEXT,
             aggiungi TEXT,
             importo2 REAL,
-            protocollo INTEGER,
+            protocollo TEXT,
             opposizione TEXT,
             anticipato TEXT,
             tracciato TEXT,
-            nDisp TEXT,
+            nDisp INTEGER,
             tipoSpesa TEXT,
             natIva1 TEXT,
             natIva2 TEXT,
@@ -147,6 +148,109 @@ class SQLite {
           pv: pv,
           tel: tel,
           email: email,
+        ),
+    ];
+  }
+
+  Future<List<Fattura>> listaFatture() async {
+    final db = await database;
+
+    final List<Map<String, Object?>> fattureMaps = await db.query('fatture');
+
+    return [
+      for (final {
+            'cf': cf as String,
+            'username': username as String,
+            'nome': nome as String,
+            'cognome': cognome as String,
+            'proprietario': proprietario as String,
+            'importo1': importo1 as double,
+            'importo2': importo2 as double,
+            'dataFat': dataFat as String,
+            'dataPag': dataPag as String,
+            'aggiungi': aggiungi as String,
+            'protocollo': protocollo as String,
+            'opposizione': opposizione as String,
+            'anticipato': anticipato as String,
+            'tracciato': tracciato as String,
+            'nDisp': nDisp as int,
+            'tipoSpesa': tipoSpesa as String,
+            'natIva1': natIva1 as String,
+            'natIva2': natIva2 as String,
+            'nFat': nFat as String
+          } in fattureMaps)
+        Fattura(
+          username: username,
+          aggiungi: aggiungi,
+          cf: cf,
+          nome: nome,
+          cognome: cognome,
+          proprietario: proprietario,
+          natIva1: natIva1,
+          natIva2: natIva2,
+          dataFat: dataFat,
+          dataPag: dataPag,
+          importo1: importo1,
+          importo2: importo2,
+          protocollo: protocollo,
+          opposizione: opposizione,
+          anticipato: anticipato,
+          tracciato: tracciato,
+          tipoSpesa: tipoSpesa,
+          nDisp: nDisp,
+          nFat: nFat,
+        ),
+    ];
+  }
+
+  Future<List<Fattura>> listaFattureUser(String? user) async {
+    final db = await database;
+
+    final List<Map<String, Object?>> fattureMaps =
+        await db.query('fatture', where: 'username=?', whereArgs: [user]);
+
+    return [
+      for (final {
+            'cf': cf as String,
+            'username': username as String,
+            'nome': nome as String,
+            'cognome': cognome as String,
+            'proprietario': proprietario as String,
+            'importo1': importo1 as double,
+            'importo2': importo2 as double,
+            'dataFat': dataFat as String,
+            'dataPag': dataPag as String,
+            'aggiungi': aggiungi as String,
+            'protocollo': protocollo as String,
+            'opposizione': opposizione as String,
+            'anticipato': anticipato as String,
+            'tracciato': tracciato as String,
+            'nDisp': nDisp as int,
+            'tipoSpesa': tipoSpesa as String,
+            'natIva1': natIva1 as String,
+            'natIva2': natIva2 as String,
+            'nFat': nFat as String
+          } in fattureMaps)
+        Fattura(
+          username: username,
+          aggiungi: aggiungi,
+          cf: cf,
+          nome: nome,
+          cognome: cognome,
+          proprietario: proprietario,
+          natIva1: natIva1,
+          natIva2: natIva2,
+          dataFat: dataFat,
+          dataPag: dataPag,
+          importo1: importo1,
+          importo2: importo2,
+          protocollo: protocollo,
+          opposizione: opposizione,
+          anticipato: anticipato,
+          tracciato: tracciato,
+          tipoSpesa: tipoSpesa,
+          nDisp: nDisp,
+          nFat: nFat,
         ),
     ];
   }

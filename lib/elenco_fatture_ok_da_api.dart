@@ -1,15 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:sqflite/sqflite.dart';
 import 'package:sts/dettagli_fatture.dart';
 import 'package:sts/models/fattura.dart';
-
+import 'utente.dart';
 import 'sts_db.dart';
-
-import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 import 'package:sts/controllers/proxy.dart';
@@ -23,18 +22,19 @@ class ElencoFatture extends StatefulWidget {
 }
 
 class _ElencoUtenti extends State<ElencoFatture> {
-  // var response = fetchFatture();
-  var response = listaFattureDb();
+  var response = fetchFatture();
+
 /*
   Future<List<Utente>> lista = sql.utenti();
 
   Future<int> lun = sql.utenti().then((value) {
     return value.length;
   });*/
+
   void _setLun() {
     setState(() {
       //lista = sql.utenti();
-      response = listaFattureDb();
+      response = fetchFatture();
     });
   }
 
@@ -69,7 +69,7 @@ class _ElencoUtenti extends State<ElencoFatture> {
                   ),
                 ),
                 Expanded(
-                  child: FutureBuilder<List<Fattura>>(
+                  child: FutureBuilder<List<dynamic>>(
                       future: response,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
@@ -80,7 +80,7 @@ class _ElencoUtenti extends State<ElencoFatture> {
                           );
                         } else if (!snapshot.data!.isEmpty) {
                           // once data is fetched, display it on screen (call buildPosts())
-                          print("dati:   $snapshot.data!.isEmpty.toString()");
+                          print("dati: " + snapshot.data!.isEmpty.toString());
                           final fattura = snapshot.data!;
 
                           return ListView.builder(
@@ -100,25 +100,27 @@ class _ElencoUtenti extends State<ElencoFatture> {
                                       shape: RoundedRectangleBorder(),
                                       child: Row(children: [
                                         Expanded(
-                                            flex: 4,
-                                            child: Text(fattura[i].nFat)),
+                                            flex: 6,
+                                            child: Text(fattura[i]['nFat'])),
                                         Expanded(
-                                            flex: 12,
-                                            child: (fattura[i].dataFat != null)
-                                                ? Text(fattura[i].dataFat)
+                                            flex: 16,
+                                            child: (fattura[i]['cf'] != null)
+                                                ? Text(fattura[i]['cf'])
                                                 : Text('vuoto')),
-                                        Expanded(
-                                            flex: 10,
-                                            child: Text(fattura[i].nome)),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(fattura[i]['dataFat']),
+                                        ),
 
-                                        Expanded(
-                                          flex: 15,
-                                          child: Text(
-                                              fattura[i].cognome ?? 'vuoto'),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(fattura[i]
+                                                  ['protocollo'] ??
+                                              'vuoto'),
                                         ),
 
                                         // Expanded(child: Text(utenti[i].cf)),
-                                        const Expanded(
+                                        Expanded(
                                             child:
                                                 SizedBox()), // per tenere icona alla fine
                                         /* IconButton(
@@ -133,7 +135,7 @@ class _ElencoUtenti extends State<ElencoFatture> {
                                                           context) =>
                                                       AlertDialog(
                                                         title: Text("Elimina"),
-                                                        content: const Text(
+                                                        content: Text(
                                                             "Confermi l'eliminazione?"),
                                                         actions: <Widget>[
                                                           TextButton(
@@ -141,20 +143,20 @@ class _ElencoUtenti extends State<ElencoFatture> {
                                                                   Navigator.pop(
                                                                       context,
                                                                       'Cancel'),
-                                                              child: const Text(
+                                                              child: Text(
                                                                   "Annulla")),
                                                           TextButton(
                                                             onPressed: () => {
-                                                              print(fattura[i]
-                                                                  .protocollo),
-                                                              id = fattura[i]
-                                                                  .protocollo,
+                                                              print(fattura[i][
+                                                                  'protocollo']),
+                                                              id = fattura[i][
+                                                                  'protocollo'],
                                                               deleteFattura(),
                                                               Navigator.pop(
                                                                   context,
                                                                   'Ok'),
                                                             },
-                                                            child: const Text(
+                                                            child: Text(
                                                                 "Conferma"),
                                                           )
                                                         ],
@@ -167,9 +169,9 @@ class _ElencoUtenti extends State<ElencoFatture> {
                         } else {
                           // if no data, show simple Text
                           print("vuoto");
-                          return const Padding(
-                            padding: EdgeInsets.all(20.0),
-                            child: (Text("Nessuna fattura trovata")),
+                          return Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: (const Text("Nessuna fattura trovata")),
                           );
                         }
                       }),
@@ -195,19 +197,11 @@ class _ElencoUtenti extends State<ElencoFatture> {
   }
 }
 
-Future<List<Fattura>> listaFattureDb() async {
-  SharedPreferences shared = await SharedPreferences.getInstance();
-  String? user = shared.getString('username');
+/*
+Future <List<dynamic> feychFattureDb() async {
 
-  //var listaFatture = await sql.listaFatture();  //tutte le fatture senza filtro username
-  var listaFatture = await sql.listaFattureUser(user);
-  for (Fattura f in listaFatture) {
-    log("nomi trovati");
-    print(f.nome);
-  }
-  ;
-  return listaFatture;
-}
+      
+}*/
 
 Future<List<dynamic>> fetchFatture() async {
   var proxy = Proxy().getProxy();

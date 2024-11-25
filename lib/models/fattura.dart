@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart' show immutable;
 
 @immutable
 class Fattura {
+  final String username;
   final String proprietario;
   final String nome;
   final String cognome;
@@ -10,19 +11,20 @@ class Fattura {
   final String natIva2;
   final String dataPag;
   final String dataFat;
-  final bool aggiungi;
+  final String aggiungi;
   final double importo1;
   final double importo2;
-  final int protocollo;
+  final String protocollo;
   final String opposizione;
   final String anticipato;
   final String tracciato;
   final String tipoSpesa;
-  final String nDisp;
+  final int nDisp;
   final String nFat;
 
   const Fattura(
-      {required this.aggiungi,
+      {required this.username,
+      required this.aggiungi,
       required this.proprietario,
       required this.nome,
       required this.cognome,
@@ -43,6 +45,7 @@ class Fattura {
 
   Map<String, dynamic> toMap() {
     return {
+      "username": username,
       "nome": nome,
       "cognome": cognome,
       "cf": cf,

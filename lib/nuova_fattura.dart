@@ -31,6 +31,8 @@ bool opposiz = false;
 bool tracciato = true;
 bool aggiungi = false;
 
+String protocollo = "";
+
 SQLite slq = SQLite();
 //dati per invio
 
@@ -644,7 +646,48 @@ class _nuovaFattura extends State<nuovaFattura> {
     );
   }
 
-  Future<void> salvaFattura() async {}
+  Future<void> salvaFattura() async {
+    List<Proprietario> prop = await sql.getProprietario();
+    Utente? user = await sql.getUtenteByCf(cfUtente!);
+    print(user!.nome);
+
+    String cfProp = prop[0].username;
+    String pw = prop[0].password;
+    String pincode = prop[0].pincode;
+    String piva = prop[0].piva;
+
+    SharedPreferences shared = await SharedPreferences.getInstance();
+    String? username = shared.getString('username');
+
+    print("username $username");
+
+    Fattura fat = Fattura(
+        username: username!,
+        aggiungi: aggiungi ? "SI" : "NO",
+        proprietario: cfProp,
+        nome: user!.nome,
+        cognome: user.cognome,
+        cf: cfUtente!,
+        natIva1: natIva,
+        natIva2: natIva2,
+        dataFat: dataFat.text,
+        dataPag: dataPag.text,
+        importo1: double.parse(importo.text),
+        importo2: aggiungi ? double.parse(importo2.text) : 0,
+        protocollo: protocollo,
+        opposizione: opposiz ? "SI" : "NO",
+        anticipato: anticip ? "SI" : "NO",
+        tracciato: tracciato ? "SI" : "NO",
+        tipoSpesa: tipoSpesa,
+        nDisp: int.parse(nDisp.text),
+        nFat: nFat.text);
+    try {
+      sql.insertFattura(fat);
+    } catch (e) {
+      print(e);
+    }
+    protocollo = "";
+  }
 
   Future<void> invia() async {
     setState(() {
@@ -724,6 +767,12 @@ class _nuovaFattura extends State<nuovaFattura> {
           print(response.body.toString());
           final res = response.body;
           risultato.text = res.toString();
+
+          List respChar = [];
+          for (int b = 0; b < res.toString().length; b++) {
+            respChar.add(res[b]);
+          }
+
           //per controllare il corretto invio
           String a = "";
           for (int b = 0; b < 33; b++) {
@@ -732,6 +781,11 @@ class _nuovaFattura extends State<nuovaFattura> {
           print("-->$a");
           if (a == "Operazione eseguita correttamente") {
             print("-->OK"); //invio corretto
+            for (int c = 34; c < 51; c++) {
+              print(res[c]);
+              protocollo = protocollo + res[c];
+            }
+            salvaFattura();
           }
           showDialog(
               context: context,
