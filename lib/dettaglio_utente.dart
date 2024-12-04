@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sts/sts_db.dart';
 import 'utente.dart';
@@ -22,8 +23,11 @@ class DettaglioUtente extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Future<void> carica() async {
+      SharedPreferences shared = await SharedPreferences.getInstance();
+      String? user = shared.getString('username');
+
       SQLite();
-      Utente? utente = await sql.getUtenteByCf(codfisc);
+      Utente? utente = await sql.getUtenteByCf(codfisc, user!);
 
       try {
         if (utente != null) {
@@ -247,8 +251,11 @@ void salva() {
 Future<void> _salva(BuildContext context) async {
   //Utente? u = await sql.getUtenteByCf(cf.text);
 //print("utente" + u.toString());
+  SharedPreferences shared = await SharedPreferences.getInstance();
+  String? user = shared.getString('username');
 
   Utente utente = Utente(
+      user: user!,
       cf: cf.text,
       cognome: cognome.text,
       nome: nome.text,
@@ -347,6 +354,8 @@ Widget buildUtenti(List<Utente> utenti) {
 }
 
 Future<void> lista() async {
+  SharedPreferences shared = await SharedPreferences.getInstance();
+  String? user = shared.getString('username');
   List<Utente> utenti = await sql.utenti();
   Utente utente;
   int lun = utenti.length;

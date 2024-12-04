@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,9 +22,10 @@ TextEditingController nFat = TextEditingController();
 TextEditingController importo = TextEditingController();
 TextEditingController importo2 = TextEditingController();
 TextEditingController nDisp = TextEditingController();
-String? cfUtente;
+String? cfUtente = "";
 String? nomeUtente;
 String? cognomeUtente;
+String? userlogin;
 
 final proxy = Proxy().getProxy();
 
@@ -35,6 +38,8 @@ String protocollo = "";
 
 SQLite slq = SQLite();
 //dati per invio
+//late Future<List<String>> lista;
+//late List<Utente> lista2;
 
 class NuovaFattura extends StatelessWidget {
   const NuovaFattura({super.key});
@@ -62,6 +67,8 @@ class nuovaFattura extends StatefulWidget {
 class _nuovaFattura extends State<nuovaFattura> {
   @override
   void initState() {
+    //lista = sql.utentiMenu();
+
     print("initState Called");
     risultato.clear();
     nFat.clear();
@@ -70,6 +77,7 @@ class _nuovaFattura extends State<nuovaFattura> {
     importo.clear();
     nDisp.text = "1";
     aggiungi = false;
+    //  getList();
   }
 
   String tipoSpesa = "SP";
@@ -117,13 +125,27 @@ class _nuovaFattura extends State<nuovaFattura> {
   ];
 
   bool isLoading = false;
-  //String dropdownValue = list.first;
 
   Future<List<String>> lista = sql.utentiMenu();
   Future<List<Utente>> lista2 = sql.utenti();
 
-  final _formKey = GlobalKey<FormState>();
+  //String dropdownValue = list.first;
 
+//  lista = sql.utentiMenu();
+
+  // lista2 = sql.utenti();
+  //Future<List<Utente>>? lista2 = null;
+  //= sql.utenti();
+
+/*
+  Future<List<Utente>> getList() async {
+    lista2 = await sql.utenti();
+    log("lista $lista2.length");
+    return lista2;
+  }*/
+
+  final _formKey = GlobalKey<FormState>();
+  // Future<List<Utente>> lista = sql.utenti();
   @override
   Widget build(BuildContext context) {
     //ottieniLista();
@@ -132,6 +154,7 @@ class _nuovaFattura extends State<nuovaFattura> {
       key: _formKey,
       child: Container(
           child: FutureBuilder<List<Utente>>(
+              //future: getList(),
               future: lista2,
               builder: (context, data) {
                 //mentre è in attesa
@@ -647,8 +670,11 @@ class _nuovaFattura extends State<nuovaFattura> {
   }
 
   Future<void> salvaFattura() async {
+    SharedPreferences shared = await SharedPreferences.getInstance();
+    String? userlogin = shared.getString('username');
+
     List<Proprietario> prop = await sql.getProprietario();
-    Utente? user = await sql.getUtenteByCf(cfUtente!);
+    Utente? user = await sql.getUtenteByCf(cfUtente!, userlogin!);
     print(user!.nome);
 
     String cfProp = prop[0].username;
@@ -656,13 +682,10 @@ class _nuovaFattura extends State<nuovaFattura> {
     String pincode = prop[0].pincode;
     String piva = prop[0].piva;
 
-    SharedPreferences shared = await SharedPreferences.getInstance();
-    String? username = shared.getString('username');
-
-    print("username $username");
+    print("username $userlogin");
 
     Fattura fat = Fattura(
-        username: username!,
+        username: userlogin!,
         aggiungi: aggiungi ? "SI" : "NO",
         proprietario: cfProp,
         nome: user!.nome,

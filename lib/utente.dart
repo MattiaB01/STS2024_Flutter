@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart' show immutable;
+import 'package:sts/views/screens/auth/login.dart';
 
 @immutable
 class Utente {
+  final String user;
   final String nome;
   final String cognome;
   final String cf;
@@ -13,6 +15,7 @@ class Utente {
   final String email;
 
   const Utente({
+    required this.user,
     required this.indirizzo,
     required this.cap,
     required this.citta,
@@ -26,6 +29,7 @@ class Utente {
 
   Map<String, dynamic> toMap() {
     return {
+      "user": user,
       "nome": nome,
       "cognome": cognome,
       "cf": cf,

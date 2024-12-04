@@ -1,12 +1,23 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sts/dettaglio_utente.dart';
 import 'utente.dart';
 import 'sts_db.dart';
 
+String? user = "";
+
 //SQLite sql = SQLite();
+Future<String> getUser() async {
+  SharedPreferences shared = await SharedPreferences.getInstance();
+  String user1 = shared.getString('username')!;
+
+  user = user1;
+  return user1;
+}
 
 class ElencoUtenti2 extends StatefulWidget {
   @override
@@ -14,13 +25,14 @@ class ElencoUtenti2 extends StatefulWidget {
 }
 
 class _ElencoUtenti extends State<ElencoUtenti2> {
+  Future<String> a = getUser();
   Future<List<Utente>> lista = sql.utenti();
-
   @override
   // ignore: must_call_super
-  initState() {
+  void initState() {
     // ignore: avoid_print
     print("initState Called");
+
     _setLun();
   }
 

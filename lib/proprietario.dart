@@ -2,14 +2,16 @@ import 'package:flutter/foundation.dart' show immutable;
 
 @immutable
 class Proprietario {
-  final int id;
+  //final int id;
+  final String user;
   final String username;
   final String password;
   final String pincode;
   final String piva;
 
   const Proprietario({
-    required this.id,
+    //required this.id,
+    required this.user,
     required this.username,
     required this.password,
     required this.pincode,
@@ -18,7 +20,8 @@ class Proprietario {
 
   Map<String, dynamic> toMap() {
     return {
-      "id": id,
+      //s"id": id,
+      "user": user,
       "username": username,
       "password": password,
       "pincode": pincode,

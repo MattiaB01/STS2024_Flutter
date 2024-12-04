@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sts/proprietario.dart';
 import 'package:sts/sts_db.dart';
@@ -134,8 +137,11 @@ void salva() {
 }
 
 Future<void> _salva(BuildContext context) async {
+  SharedPreferences shared = await SharedPreferences.getInstance();
+  String? user = await shared.getString('username');
+  log("$user");
   Proprietario prop = Proprietario(
-      id: 1,
+      user: user!,
       username: cf.text,
       password: pw.text,
       pincode: pc.text,

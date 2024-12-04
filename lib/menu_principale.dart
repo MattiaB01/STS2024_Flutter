@@ -160,6 +160,7 @@ class _MyAppState extends State<MyHomePage> {
             onPressed: () {},
             icon: Icon(Icons.more_vert),
           ),*/
+
           IconButton(
             onPressed: () {
               showDialog<String>(
@@ -198,6 +199,11 @@ class _MyAppState extends State<MyHomePage> {
             icon: Icon(Icons.logout),
           ),
         ],
+      ),
+
+      floatingActionButton: const FloatingActionButton(
+        onPressed: deleteDb,
+        child: Icon(Icons.delete),
       ),
 
       body: Column(

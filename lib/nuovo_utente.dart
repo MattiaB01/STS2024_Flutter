@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sts/sts_db.dart';
+import 'package:sts/views/screens/auth/login.dart';
 import 'utente.dart';
 
 final cf = TextEditingController();
@@ -226,10 +228,14 @@ void salva() {
 }
 
 Future<void> _salva(BuildContext context) async {
-  Utente? u = await sql.getUtenteByCf(cf.text);
+  SharedPreferences shared = await SharedPreferences.getInstance();
+
+  String? user = await shared.getString('username');
+  Utente? u = await sql.getUtenteByCf(cf.text, user!);
   print("utente" + u.toString());
 
   Utente utente = Utente(
+      user: user,
       cf: cf.text,
       cognome: cognome.text,
       nome: nome.text,
@@ -340,6 +346,8 @@ Widget buildUtenti(List<Utente> utenti) {
 }
 
 Future<void> lista() async {
+  SharedPreferences shared = await SharedPreferences.getInstance();
+  String? user = shared.getString('username');
   List<Utente> utenti = await sql.utenti();
   Utente utente;
   int lun = utenti.length;

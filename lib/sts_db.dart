@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sts/models/fattura.dart';
 import 'package:sts/nuova_fattura.dart';
 
@@ -45,17 +46,18 @@ class SQLite {
 
   Future<void> _onCreate(Database database, int version) async {
     final db = database;
-    await db.execute(""" CREATE TABLE IF NOT EXISTS users(
+    /* await db.execute(""" CREATE TABLE IF NOT EXISTS users(
             id INTEGER PRIMARY KEY,
             name TEXT,
             email TEXT,
             password INTEGER,
             phoneNumber INTEGER
           )
- """);
+ """);*/
 
     await db.execute(""" CREATE TABLE IF NOT EXISTS proprietario(
-            id INTEGER PRIMARY KEY,
+            id INTEGER,
+            user TEXT UNIQUE PRIMARY KEY,
             username TEXT,
             password TEXT,
             pincode TEXT,
@@ -63,8 +65,9 @@ class SQLite {
           )
  """);
     await db.execute(""" CREATE TABLE IF NOT EXISTS utente(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            cf TEXT UNIQUE,
+            
+            user TEXT,
+            cf TEXT ,
             nome TEXT,
             cognome TEXT,
             indirizzo TEXT,
@@ -72,7 +75,8 @@ class SQLite {
             città TEXT,
             pv TEXT,
             tel TEXT,
-            email TEXT
+            email TEXT,
+             PRIMARY KEY (user,cf)
           )
  """);
 
@@ -122,12 +126,17 @@ class SQLite {
   }
 
   Future<List<Utente>> utenti() async {
+    SharedPreferences shared = await SharedPreferences.getInstance();
+    String? user = shared.getString('username');
+
     final db = await database;
 
-    final List<Map<String, Object?>> utentiMaps = await db.query('utente');
+    final List<Map<String, Object?>> utentiMaps =
+        await db.query('utente', where: 'user=?', whereArgs: [user]);
 
     return [
       for (final {
+            'user': user as String,
             'cf': cf as String,
             'nome': nome as String,
             'cognome': cognome as String,
@@ -139,6 +148,7 @@ class SQLite {
             'email': email as String,
           } in utentiMaps)
         Utente(
+          user: user,
           cf: cf,
           nome: nome,
           cognome: cognome,
@@ -256,33 +266,37 @@ class SQLite {
   }
 
   Future<List<String>> utentiMenu() async {
-    try {
-      final db = await database;
+    SharedPreferences shared = await SharedPreferences.getInstance();
+    String? user = shared.getString('username');
 
-      final List<Map<String, Object?>> utentiMaps = await db.query('utente');
+    //try {
+    final db = await database;
 
-      return await [
-        for (final {
-              'cf': cf as String,
-              'nome': nome as String,
-              'cognome': cognome as String,
-              'indirizzo': indirizzo as String,
-              'cap': cap as String,
-              'città': citta as String,
-              'pv': pv as String,
-              'tel': tel as String,
-              'email': email as String,
-            } in utentiMaps)
-          "$cf  $nome $cognome",
-      ];
-    } on Exception {
+    final List<Map<String, Object?>> utentiMaps =
+        await db.query('utente', where: 'user=? ', whereArgs: [user]);
+
+    return [
+      for (final {
+            'cf': cf as String,
+            'nome': nome as String,
+            'cognome': cognome as String,
+            'indirizzo': indirizzo as String,
+            'cap': cap as String,
+            'città': citta as String,
+            'pv': pv as String,
+            'tel': tel as String,
+            'email': email as String,
+          } in utentiMaps)
+        "$cf  $nome $cognome",
+    ];
+    /*}  on Exception {
       //throw Exception('error fetching data');
       List<String> a = [];
       return a;
-    }
+    }*/
   }
 
-  Future<Utente?> getUtenteByCf(String cf) async {
+  Future<Utente?> getUtenteByCf(String cf, String user) async {
     final db = await database;
     if (cf != null) {
       final List<Map<String, dynamic>> utenti = await db.query(
@@ -292,6 +306,7 @@ class SQLite {
       );
       if (utenti.isNotEmpty) {
         return Utente(
+          user: utenti[0]['user'],
           cf: utenti[0]['cf'],
           nome: utenti[0]['nome'],
           email: utenti[0]['email'],
@@ -361,80 +376,25 @@ class SQLite {
     return user;
   }
 
-  Future<List<User>> batchInsert() async {
-    final db = await database;
-    final batch = db.batch();
-    final Random random = Random();
-    final List<User> userList = List.generate(
-      1000,
-      (index) => User(
-        id: index + 1,
-        name: 'User $index',
-        email: 'user$index@example.com',
-        password: random.nextInt(9999),
-        phoneNumber: random.nextInt(10000),
-      ),
-    );
-    for (final User user in userList) {
-      batch.insert(
-        'users',
-        user.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    }
-    await batch.commit();
-    return userList;
-  }
-
   Future<List<Proprietario>> getProprietario() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('proprietario');
+    SharedPreferences shared = await SharedPreferences.getInstance();
+    String? user = await shared.getString('username');
+
+    print("proprietario $user");
+    final List<Map<String, dynamic>> maps =
+        await db.query('proprietario', where: 'user=?', whereArgs: [user]);
 
     return List.generate(maps.length, (index) {
       return Proprietario(
-        id: maps[index]['id'],
+        //id: maps[index]['id'],
         username: maps[index]['username'],
         password: maps[index]['password'],
         pincode: maps[index]['pincode'],
         piva: maps[index]['piva'],
+        user: maps[index]['user'],
       );
     });
-  }
-
-  Future<List<User>> getAllUsers() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('users');
-
-    return List.generate(maps.length, (index) {
-      return User(
-        id: maps[index]['id'],
-        name: maps[index]['name'],
-        email: maps[index]['email'],
-        password: maps[index]['password'],
-        phoneNumber: maps[index]['phoneNumber'],
-      );
-    });
-  }
-
-  Future<User?> getUserById(int userId) async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'users',
-      where: 'id = ?',
-      whereArgs: [userId],
-    );
-
-    if (maps.isNotEmpty) {
-      return User(
-        id: maps[0]['id'],
-        name: maps[0]['name'],
-        email: maps[0]['email'],
-        password: maps[0]['password'],
-        phoneNumber: maps[0]['phoneNumber'],
-      );
-    }
-
-    return null;
   }
 
   Future<void> deleteAllUsers() async {
