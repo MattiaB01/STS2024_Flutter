@@ -27,7 +27,8 @@ class DettaglioUtente extends StatelessWidget {
       String? user = shared.getString('username');
 
       SQLite();
-      Utente? utente = await sql.getUtenteByCf(codfisc, user!);
+      //Utente? utente = await sql.getUtenteByCf(codfisc, user!);
+      Utente? utente = await sql.getUtenteByCf(codfisc);
 
       try {
         if (utente != null) {

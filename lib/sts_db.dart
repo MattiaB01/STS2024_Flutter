@@ -110,6 +110,11 @@ class SQLite {
   //3167676525
   //65432109876
 
+  Future<void> getPathDb() async {
+    String path = await getDatabasesPath();
+    print("location :" + path);
+  }
+
   Future<Fattura?> insertFattura(Fattura fattura) async {
     final db = await database;
     try {
@@ -296,13 +301,15 @@ class SQLite {
     }*/
   }
 
-  Future<Utente?> getUtenteByCf(String cf, String user) async {
+  Future<Utente?> getUtenteByCf(String cf) async {
+    SharedPreferences shared = await SharedPreferences.getInstance();
+    String? user = shared.getString('username');
     final db = await database;
     if (cf != null) {
       final List<Map<String, dynamic>> utenti = await db.query(
         'utente',
-        where: 'cf = ?',
-        whereArgs: [cf],
+        where: 'cf = ? and  user= ?',
+        whereArgs: [cf, user],
       );
       if (utenti.isNotEmpty) {
         return Utente(

@@ -231,11 +231,12 @@ Future<void> _salva(BuildContext context) async {
   SharedPreferences shared = await SharedPreferences.getInstance();
 
   String? user = await shared.getString('username');
-  Utente? u = await sql.getUtenteByCf(cf.text, user!);
+  //Utente? u = await sql.getUtenteByCf(cf.text, user!);
+  Utente? u = await sql.getUtenteByCf(cf.text);
   print("utente" + u.toString());
 
   Utente utente = Utente(
-      user: user,
+      user: user!,
       cf: cf.text,
       cognome: cognome.text,
       nome: nome.text,
