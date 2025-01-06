@@ -181,6 +181,7 @@ class UtentiRoute extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blueAccent,
                             foregroundColor: Colors.white,
+                            elevation: 7,
                           ),
                           onPressed: () {
                             _salva(context);
@@ -190,6 +191,7 @@ class UtentiRoute extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blueAccent,
                             foregroundColor: Colors.white,
+                            elevation: 7,
                           ),
                           onPressed: _cancella,
                           child: Text('Cancella')),

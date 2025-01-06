@@ -1,0 +1,505 @@
+import 'dart:developer';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/number_symbols_data.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sts/models/fattura.dart';
+import 'package:sts/proprietario.dart';
+import 'package:sts/dati_proprietario.dart';
+import 'sts_db.dart';
+import 'utente.dart';
+import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:sts/controllers/proxy.dart';
+
+TextEditingController risultato = TextEditingController();
+TextEditingController dataFat = TextEditingController();
+TextEditingController dataPag = TextEditingController();
+TextEditingController nFat = TextEditingController();
+TextEditingController importo = TextEditingController();
+TextEditingController importo2 = TextEditingController();
+TextEditingController nDisp = TextEditingController();
+TextEditingController nomeText = TextEditingController();
+TextEditingController cognomeText = TextEditingController();
+
+String? cfUtente;
+String? nomeUtente;
+String? cognomeUtente;
+
+final proxy = Proxy().getProxy();
+
+bool anticip = false;
+bool opposiz = false;
+bool tracciato = false;
+bool aggiungi = false;
+
+String protocollo = "";
+String tipoSpesa = "AA";
+
+String codiceFiscale = "";
+String nome = "";
+String cognome = "";
+
+SQLite slq = SQLite();
+//dati per invio
+
+class DettaglioFattura extends StatelessWidget {
+  const DettaglioFattura({super.key, required this.nProtocollo});
+  final String nProtocollo;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.blueAccent,
+      appBar: AppBar(
+        title: const Text('Dettaglio fattura'),
+        // backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Colors.blueAccent.withOpacity(0.9),
+      ),
+      body: dettaglioFattura(nProtocollo: nProtocollo),
+    );
+  }
+}
+
+class dettaglioFattura extends StatefulWidget {
+  const dettaglioFattura({super.key, required this.nProtocollo});
+  final String nProtocollo;
+
+  @override
+  State<dettaglioFattura> createState() => _dettaglioFattura();
+}
+
+class _dettaglioFattura extends State<dettaglioFattura> {
+  @override
+  void initState() {
+    nome = "";
+    cognome = "";
+    print("initState Called");
+    getFat(widget.nProtocollo);
+    risultato.clear();
+    /*listaprova = lista3();*/
+    setLista();
+    //nFat.clear();
+    //dataFat.clear();
+    //dataPag.clear();
+    //importo.clear();
+    //nDisp.text = "1";
+    cfUtente = null;
+  }
+
+  Future<void> getFat(String prot) async {
+    log(prot);
+    Fattura fat = await sql.getFatturaByProtocollo(prot);
+
+    List<Utente> u = await sql.listaUtentiByCf(codiceFiscale);
+
+    nFat.text = fat.nFat;
+    dataFat.text = fat.dataFat;
+    dataPag.text = fat.dataPag;
+    importo.text = fat.importo1.toStringAsFixed(2);
+    nDisp.text = fat.nDisp.toString();
+    tipoSpesa = fat.tipoSpesa;
+    codiceFiscale = fat.cf;
+    aggiungi = fat.aggiungi == "SI" ? true : false;
+    opposiz = fat.opposizione == "SI" ? true : false;
+    tracciato = fat.tracciato == "SI" ? true : false;
+    natIva = fat.natIva1;
+    risultato.text = widget.nProtocollo;
+  }
+
+  //var lista0 = sql.listaUtentiByCf(codiceFiscale);
+
+  Future<List<Utente>>? lista4;
+/*
+  Future<List<Utente>> lista3() async {
+    return await sql.listaUtentiByCf(codiceFiscale);
+  }
+*/
+
+  void setLista() async {
+    List<Utente> u = await sql.listaUtentiByCf(codiceFiscale);
+
+    for (Utente utente in u) {
+      print("nome " + utente.nome);
+      setState(() {
+        nome = utente.nome;
+        cognome = utente.cognome;
+      });
+    }
+  }
+
+  late Future<List<Utente>> listaprova;
+
+  //String tipoSpesa = "SP";
+  String natIva = "N2.2";
+  String natIva2 = "N2.2";
+  //TK	FC	FV	AD	AS	SR	CT	PI	IC	AA	SV	SP
+  var itemsSpesa = [
+    "SP",
+    "TK",
+    "FC",
+    "FV",
+    "AD",
+    "AS",
+    "SR",
+    "CT",
+    "PI",
+    "IC",
+    "AA",
+    "SV",
+  ];
+
+  var itemsNatIva = [
+    'N1',
+    "N2.1",
+    'N2.2',
+    'N3.1',
+    'N3.2',
+    'N3.3',
+    'N3.4',
+    'N3.5',
+    'N3.6',
+    'N4',
+    'N5',
+    'N6',
+    'N6.1',
+    'N6.2',
+    'N6.3',
+    'N6.4',
+    'N6.5',
+    'N6.6',
+    'N6.7',
+    'N6.8',
+    'N6.9',
+    'N7',
+  ];
+
+  bool isLoading = false;
+  //String dropdownValue = list.first;
+/*
+  Future<List<String>> lista = sql.utentiMenu();
+  Future<List<Utente>> lista2 = sql.listaUtentiByCf(codiceFiscale);
+*/
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    //ottieniLista();
+    //print('lista: $_lista');
+    return Column(
+      children: [
+        SizedBox(height: 50),
+        Form(
+          key: _formKey,
+          child: Expanded(
+            child: Container(
+                decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(25),
+                        topRight: Radius.circular(25))),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding:
+                          const EdgeInsets.only(top: 50, left: 8, right: 8),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Flexible(
+                            child: TextFormField(
+                              initialValue: codiceFiscale,
+                              readOnly: true,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                labelText: 'Codice Fiscale',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          Flexible(
+                            child: TextFormField(
+                                initialValue: nome,
+                                readOnly: true,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: "Nome",
+                                )),
+                          ),
+                          Flexible(
+                            child: TextFormField(
+                                initialValue: cognome,
+                                readOnly: true,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: "Cognome",
+                                )),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                )),
+          ),
+        )
+      ],
+    );
+  }
+
+  Future<void> salvaFattura() async {
+    List<Proprietario> prop = await sql.getProprietario();
+    Utente? user = await sql.getUtenteByCf(codiceFiscale); //cfUtente!);
+    print(user!.nome);
+
+    String cfProp = prop[0].username;
+    String pw = prop[0].password;
+    String pincode = prop[0].pincode;
+    String piva = prop[0].piva;
+
+    SharedPreferences shared = await SharedPreferences.getInstance();
+    String? username = shared.getString('username');
+
+    print("username $username");
+
+    Fattura fat = Fattura(
+        username: username!,
+        aggiungi: aggiungi ? "SI" : "NO",
+        proprietario: cfProp,
+        nome: user!.nome,
+        cognome: user.cognome,
+        cf: codiceFiscale, // cfUtente!,
+        natIva1: natIva,
+        natIva2: natIva2,
+        dataFat: dataFat.text,
+        dataPag: dataPag.text,
+        importo1: double.parse(importo.text),
+        importo2: aggiungi ? double.parse(importo2.text) : 0,
+        protocollo: protocollo,
+        opposizione: opposiz ? "SI" : "NO",
+        anticipato: anticip ? "SI" : "NO",
+        tracciato: tracciato ? "SI" : "NO",
+        tipoSpesa: tipoSpesa,
+        nDisp: int.parse(nDisp.text),
+        nFat: nFat.text);
+    try {
+      sql.insertFattura(fat);
+    } catch (e) {
+      print(e);
+    }
+    protocollo = "";
+  }
+
+  Future<void> invia() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      List<Proprietario> prop = await sql.getProprietario();
+
+      String cfProp = prop[0].username;
+      String pw = prop[0].password;
+      String pincode = prop[0].pincode;
+      String piva = prop[0].piva;
+
+      final url =
+          //Uri.parse('http://10.0.2.2:8080/invio'); //Repclace Your Endpoint
+          Uri.parse('http://$proxy/modifica'); //Repclace Your Endpoint
+      final headers = {'Content-Type': 'application/json'};
+      //final body = jsonEncode({'name': 'John Doe', 'email': 'john@example.com'});
+
+      final prefs = await SharedPreferences.getInstance();
+      final username = prefs.getString('username') ?? 0;
+
+      //late final aggiunta;
+      late final imp2;
+      late final naturaBollo;
+      if (aggiungi) {
+        //aggiunta = "SI";
+        imp2 = importo2.text;
+        naturaBollo = natIva2;
+      } else {
+        //aggiunta = "";
+        imp2 = "";
+        naturaBollo = "";
+      }
+      final body = jsonEncode({
+        "proprietario": {
+          /*
+      "username": ",
+      "password": "Salve123",
+      "pincode": "3167676525",
+      "piva": "65432109876",*/
+
+          "username": cfProp,
+          "password": pw,
+          "pincode": pincode,
+          "piva": piva,
+        },
+        "fattura": {
+          "username": username,
+          "proprietario": cfProp,
+          "utente": codiceFiscale, //cfUtente,
+          "dataFat": dataFat.text,
+          "dataPag": dataPag.text,
+          "numFat": nFat.text,
+          "impTot1": importo.text,
+          "natIva1": natIva,
+          "tipoSpesa": tipoSpesa,
+          "aggiungi": aggiungi,
+          "bollo": imp2,
+          "natIva2": naturaBollo,
+          "numDisp": nDisp.text,
+          "tracciato": tracciato ? "SI" : "NO",
+          "opposizione": opposiz ? "SI" : "NO",
+          "anticipato": anticip ? "SI" : "NO",
+        }
+      });
+
+      try {
+        final response = await http.post(url, headers: headers, body: body);
+        // .timeout(Duration(seconds: 2));
+        //final url2 = Uri.parse('http://google.com');
+        //final response = await http.post(url);
+
+        if (response.statusCode == 200) {
+          print('Data Sending Success.');
+          print(response.body.toString());
+          final res = response.body;
+          risultato.text = res.toString();
+
+          List respChar = [];
+          for (int b = 0; b < res.toString().length; b++) {
+            respChar.add(res[b]);
+          }
+
+          //per controllare il corretto invio
+          String a = "";
+          for (int b = 0; b < 33; b++) {
+            a = a + res[b];
+          }
+          print("-->$a");
+          if (a == "Operazione eseguita correttamente") {
+            print("-->OK"); //invio corretto
+            for (int c = 34; c < 51; c++) {
+              print(res[c]);
+              protocollo = protocollo + res[c];
+            }
+            salvaFattura();
+          }
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Esito invio'),
+                  content: Text(res),
+                  actions: [
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        textStyle: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      child: const Text('Ok'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              });
+        } else {
+          print('Data: ${response.statusCode}');
+          risultato.text = "Si è verificato un errore";
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  // backgroundColor: Colors.grey.withOpacity(0.9),
+                  title: const Text('Attenzione:', textAlign: TextAlign.center),
+                  content: const Text(
+                      'Si è verificato un errore.\n Controlla tutti i dati.',
+                      textAlign: TextAlign.center),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, 'Ok'),
+                      child: const Text('Ok'),
+                    ),
+                  ],
+                );
+              });
+          //print(response.body);
+        }
+      } catch (e) {
+        print(e);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Problema di connessione. Riprova più tardi.'),
+          ),
+        );
+      }
+    } catch (e) {
+      print(e);
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Attenzione'),
+              content: Text(
+                  "Inserisci i tuoi dati necessari per l'invio prima di procedere"),
+              actions: [
+                TextButton(
+                  style: TextButton.styleFrom(
+                    textStyle: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  child: const Text('Ok'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          });
+    }
+    ;
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+/*
+
+void invia() {
+  print('invia');
+}
+*/
+  showError() async {
+    await Future.delayed(Duration(microseconds: 1));
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: Colors.blueAccent.withOpacity(0.5),
+            title: const Text('Attenzione:', textAlign: TextAlign.center),
+            content: const Text(
+                'Non puoi inviare fatture perchè\nnon hai registrato nessun utente.',
+                textAlign: TextAlign.center),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.pop(context, 'Ok'),
+                child: const Text('Ok'),
+              ),
+            ],
+          );
+        });
+  }
+}

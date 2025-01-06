@@ -1,15 +1,6 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite/sqflite.dart';
-import 'utente.dart';
-import 'sts_db.dart';
 
-import 'package:http/http.dart' as http;
-import 'package:sts/controllers/proxy.dart';
+import 'sts_db.dart';
 
 SQLite sql = SQLite();
 late String id;

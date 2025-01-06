@@ -1,6 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sts/models/fattura.dart';
+import 'package:sts/nuova_fattura.dart';
 import 'package:sts/sts_db.dart';
 import 'utente.dart';
 
@@ -8,27 +12,29 @@ final cf = TextEditingController();
 final nome = TextEditingController();
 final cognome = TextEditingController();
 final indirizzo = TextEditingController();
-final cap = TextEditingController();
-final citta = TextEditingController();
-final pv = TextEditingController();
-final tel = TextEditingController();
-final email = TextEditingController();
+final importo1 = TextEditingController();
+final dataPag = TextEditingController();
+final dataFat = TextEditingController();
 
 final sql = SQLite();
 
-class DettaglioUtente extends StatelessWidget {
-  const DettaglioUtente({super.key, required this.codfisc});
-  final String codfisc;
+class DettaglioFattura extends StatefulWidget {
+  const DettaglioFattura({super.key, required this.nProtocollo});
+  final String nProtocollo;
 
+  @override
+  State<DettaglioFattura> createState() => _dettaglioFattura();
+}
+
+class _dettaglioFattura extends State<DettaglioFattura> {
   @override
   Widget build(BuildContext context) {
     Future<void> carica() async {
-      SharedPreferences shared = await SharedPreferences.getInstance();
-      String? user = shared.getString('username');
-
       SQLite();
       //Utente? utente = await sql.getUtenteByCf(codfisc, user!);
-      Utente? utente = await sql.getUtenteByCf(codfisc);
+
+      Fattura fat = await sql.getFatturaByProtocollo(widget.nProtocollo);
+      Utente? utente = await sql.getUtenteByCf(fat.cf);
 
       try {
         if (utente != null) {
@@ -36,11 +42,10 @@ class DettaglioUtente extends StatelessWidget {
           nome.text = utente.nome;
           cognome.text = utente.cognome;
           indirizzo.text = utente.indirizzo;
-          cap.text = utente.cap;
-          citta.text = utente.citta;
-          pv.text = utente.pv;
-          tel.text = utente.tel;
-          email.text = utente.email;
+          importo1.text = fat.importo1.toStringAsFixed(2);
+          nFat.text = fat.nFat;
+          dataPag.text = fat.dataPag;
+          dataFat.text = fat.dataFat;
         }
       } on Exception {}
     }
@@ -48,7 +53,7 @@ class DettaglioUtente extends StatelessWidget {
     carica();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dettagli utente'),
+        title: const Text('Dettaglio fattura'),
         // backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         backgroundColor: Colors.blueAccent.withOpacity(0.9),
       ),
@@ -62,8 +67,8 @@ class DettaglioUtente extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const ListTile(
-                  leading: Icon(Icons.people),
-                  title: Text('Modifica i dati di un utente'),
+                  leading: Icon(Icons.inbox),
+                  title: Text('Modifica una fattura già inviata'),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -72,8 +77,10 @@ class DettaglioUtente extends StatelessWidget {
                         child: Padding(
                       padding: EdgeInsets.all(8.0),
                       child: TextField(
+                        readOnly: true,
                         controller: nome,
                         decoration: InputDecoration(
+                          suffixIcon: Icon(Icons.lock),
                           border: OutlineInputBorder(),
                           labelText: 'nome',
                         ),
@@ -83,8 +90,10 @@ class DettaglioUtente extends StatelessWidget {
                         child: Padding(
                       padding: EdgeInsets.all(8.0),
                       child: TextField(
+                        readOnly: true,
                         controller: cognome,
                         decoration: InputDecoration(
+                          suffixIcon: Icon(Icons.lock),
                           border: OutlineInputBorder(),
                           labelText: 'cognome',
                         ),
@@ -99,10 +108,11 @@ class DettaglioUtente extends StatelessWidget {
                         child: Padding(
                       padding: EdgeInsets.all(8.0),
                       child: TextField(
-                        enabled: false,
+                        readOnly: true,
                         controller: cf,
                         maxLength: 16,
                         decoration: InputDecoration(
+                          suffixIcon: Icon(Icons.lock),
                           border: OutlineInputBorder(),
                           labelText: 'codice fiscale',
                         ),
@@ -114,16 +124,83 @@ class DettaglioUtente extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Expanded(
+                        flex: 1,
                         child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextField(
-                        controller: indirizzo,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'indirizzo',
-                        ),
-                      ),
-                    )),
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextField(
+                            readOnly: true,
+                            controller: nFat,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: 'N.Fat.',
+                            ),
+                          ),
+                        )),
+                    Expanded(
+                        flex: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextField(
+                            readOnly: true,
+                            controller: dataFat,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: 'Data fattura',
+                            ),
+                          ),
+                        )),
+                    /*
+                    Expanded(
+                        flex: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextField(
+                            controller: dataPag,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: 'Data pagamento',
+                            ),
+                          ),
+                        )),*/
+                    Flexible(
+                        flex: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: TextField(
+                              style: const TextStyle(
+                                fontSize: 14,
+                              ),
+                              controller: dataPag,
+                              decoration: const InputDecoration(
+                                  icon: Icon(Icons.calendar_today),
+                                  labelStyle: TextStyle(
+                                    fontSize: 10,
+                                  ),
+                                  labelText: "Data Fattura",
+                                  floatingLabelStyle: TextStyle(
+                                    fontSize: 14,
+                                  )),
+                              readOnly: true,
+                              onTap: () async {
+                                DateTime? pickedDate = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime(2023),
+                                  lastDate: DateTime(2040),
+                                );
+
+                                if (pickedDate != null) {
+                                  print(pickedDate);
+                                  String formatDate = DateFormat('dd/MM/yyyy')
+                                      .format(pickedDate);
+                                  print(formatDate);
+
+                                  setState(() {
+                                    dataPag.text = formatDate;
+                                  });
+                                }
+                              }),
+                        )),
                   ],
                 ),
                 Row(
@@ -134,10 +211,10 @@ class DettaglioUtente extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
                         child: TextField(
-                          controller: cap,
+                          controller: importo1,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
-                            labelText: 'cap',
+                            labelText: 'Importo',
                           ),
                         ),
                       ),
@@ -146,7 +223,7 @@ class DettaglioUtente extends StatelessWidget {
                         child: Padding(
                       padding: EdgeInsets.all(8.0),
                       child: TextField(
-                        controller: citta,
+                        //controller: citta,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: 'città',
@@ -158,7 +235,7 @@ class DettaglioUtente extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
                         child: TextField(
-                          controller: pv,
+                          // controller: pv,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(),
                             labelText: 'pv',
@@ -174,7 +251,7 @@ class DettaglioUtente extends StatelessWidget {
                         child: Padding(
                       padding: EdgeInsets.all(8.0),
                       child: TextField(
-                        controller: tel,
+                        //   controller: tel,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: 'tel',
@@ -185,7 +262,7 @@ class DettaglioUtente extends StatelessWidget {
                         child: Padding(
                       padding: EdgeInsets.all(8.0),
                       child: TextField(
-                        controller: email,
+                        //   controller: email,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: 'email',
@@ -203,7 +280,6 @@ class DettaglioUtente extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blueAccent,
                             foregroundColor: Colors.white,
-                            elevation: 7,
                           ),
                           onPressed: () {
                             _salva(context);
@@ -213,7 +289,6 @@ class DettaglioUtente extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blueAccent,
                             foregroundColor: Colors.white,
-                            elevation: 7,
                           ),
                           onPressed: _cancella,
                           child: Text('Cancella')),
@@ -256,14 +331,14 @@ Future<void> _salva(BuildContext context) async {
 //print("utente" + u.toString());
   SharedPreferences shared = await SharedPreferences.getInstance();
   String? user = shared.getString('username');
-
+/*
   Utente utente = Utente(
       user: user!,
       cf: cf.text,
       cognome: cognome.text,
       nome: nome.text,
       indirizzo: indirizzo.text,
-      cap: cap.text,
+      // cap: cap.text,
       citta: citta.text,
       pv: pv.text,
       tel: tel.text,
@@ -292,37 +367,14 @@ Future<void> _salva(BuildContext context) async {
         ],
       );
     },
-  );
-} /*else {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Errore'),
-          content: Text('Cf già esistente o campo cf vuoto'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}*/
+  );*/
+}
 
 void _cancella() {
   nome.clear();
   cognome.clear();
   indirizzo.clear();
-  cap.clear();
-  citta.clear();
-  pv.clear();
-  tel.clear();
-  email.clear();
+  importo1.clear();
 }
 
 String _validate() {

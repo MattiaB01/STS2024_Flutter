@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/number_symbols_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sts/models/fattura.dart';
 import 'package:sts/proprietario.dart';
-import 'package:sts/dati_proprietario.dart';
 import 'sts_db.dart';
 import 'utente.dart';
 import 'package:intl/intl.dart';
@@ -14,70 +10,120 @@ import 'dart:convert';
 import 'package:sts/controllers/proxy.dart';
 
 TextEditingController risultato = TextEditingController();
-TextEditingController dataFat = TextEditingController();
-TextEditingController dataPag = TextEditingController();
 TextEditingController nFat = TextEditingController();
-TextEditingController importo = TextEditingController();
+
 TextEditingController importo2 = TextEditingController();
 TextEditingController nDisp = TextEditingController();
 String? cfUtente;
-String? nomeUtente;
-String? cognomeUtente;
+//String? nomeUtente;
+//String? cognomeUtente;
 
 final proxy = Proxy().getProxy();
 
 bool anticip = false;
 bool opposiz = false;
-bool tracciato = true;
+bool tracciato = false;
 bool aggiungi = false;
 
 String protocollo = "";
 
 SQLite slq = SQLite();
 //dati per invio
+late Future? myFuture;
 
-class NuovaFattura extends StatelessWidget {
-  const NuovaFattura({super.key});
+final cf = TextEditingController();
+final nome = TextEditingController();
+final cognome = TextEditingController();
+final indirizzo = TextEditingController();
+final importo1 = TextEditingController();
+final dataPag = TextEditingController();
+final dataFat = TextEditingController();
+
+final sql = SQLite();
+String? tipoSpesa;
+String? natIva1;
+String natIva2 = "N1";
+
+class DettaglioFattura extends StatelessWidget {
+  const DettaglioFattura({super.key, required this.nProtocollo});
+  final String nProtocollo;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nuova fattura'),
+        title: const Text('Dettaglio fattura'),
         // backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         backgroundColor: Colors.blueAccent.withOpacity(0.9),
       ),
-      body: const nuovaFattura(),
+      body: DettaglioFattura2(nProtocollo),
     );
   }
 }
 
-class nuovaFattura extends StatefulWidget {
-  const nuovaFattura({super.key});
+class DettaglioFattura2 extends StatefulWidget {
+  const DettaglioFattura2(this.nProtocollo, {super.key});
+  final String nProtocollo;
 
   @override
-  State<nuovaFattura> createState() => _nuovaFattura();
+  State<DettaglioFattura2> createState() => _DettaglioFattura2();
 }
 
-class _nuovaFattura extends State<nuovaFattura> {
+class _DettaglioFattura2 extends State<DettaglioFattura2> {
   @override
   void initState() {
+    super.initState();
     print("initState Called");
     risultato.clear();
     nFat.clear();
     dataFat.clear();
     dataPag.clear();
-    importo.clear();
+    importo1.clear();
     importo2.clear();
     nDisp.text = "1";
-    aggiungi = false;
-
+    //aggiungi = false;
+    myFuture = carica();
     cfUtente = null;
+    //carica();
   }
 
-  String tipoSpesa = "SP";
-  String natIva = "N2.2";
-  String natIva2 = "N2.2";
+  Future<void> carica() async {
+    //Utente? utente = await sql.getUtenteByCf(codfisc, user!);
+
+    Fattura fat = await sql.getFatturaByProtocollo(widget.nProtocollo);
+    //Utente? utente = await sql.getUtenteByCf(fat.cf);
+
+    try {
+      cf.text = fat.cf;
+      nome.text = fat.nome;
+      cognome.text = fat.cognome;
+
+      importo1.text = fat.importo1.toStringAsFixed(2);
+
+      nFat.text = fat.nFat;
+      dataPag.text = fat.dataPag;
+      dataFat.text = fat.dataFat;
+
+      tipoSpesa = fat.tipoSpesa;
+
+      tracciato = fat.tracciato == "SI" ? true : false;
+      anticip = fat.anticipato == "SI" ? true : false;
+      opposiz = fat.opposizione == "SI" ? true : false;
+
+      natIva1 = fat.natIva1;
+
+      cfUtente = fat.cf;
+
+      risultato.text = fat.protocollo;
+
+      aggiungi = fat.aggiungi == "SI" ? true : false;
+      if (aggiungi) {
+        importo2.text = fat.importo2.toStringAsFixed(2);
+        natIva2 = fat.natIva2;
+      }
+    } on Exception {}
+  }
+
   //TK	FC	FV	AD	AS	SR	CT	PI	IC	AA	SV	SP
   var itemsSpesa = [
     "SP",
@@ -122,8 +168,8 @@ class _nuovaFattura extends State<nuovaFattura> {
   bool isLoading = false;
   //String dropdownValue = list.first;
 
-  Future<List<String>> lista = sql.utentiMenu();
-  Future<List<Utente>> lista2 = sql.utenti();
+  //Future<List<String>> lista = sql.utentiMenu();
+  //Future<List<Utente>> lista2 = sql.utenti();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -134,14 +180,14 @@ class _nuovaFattura extends State<nuovaFattura> {
     return Form(
       key: _formKey,
       child: Container(
-          child: FutureBuilder<List<Utente>>(
-              future: lista2,
+          child: FutureBuilder<void>(
+              future: myFuture,
               builder: (context, data) {
                 //mentre è in attesa
                 if (data.connectionState == ConnectionState.waiting) {
                   // until data is fetched, show loader
                   return const CircularProgressIndicator();
-                } else if (data.data!.isNotEmpty) {
+                } else if (!data.hasData) {
                   //var menu = data.data![0].cf;
                   // cfUtente = menu;
                   return Scaffold(
@@ -157,7 +203,7 @@ class _nuovaFattura extends State<nuovaFattura> {
                                     ListTile(
                                       leading: Icon(Icons.wrap_text),
                                       title: Text(
-                                          'Inserisci i dati della fattura da inviare'),
+                                          'Modifica i dati di una fattura già inviata'),
                                     )
                                   ],
                                 ),
@@ -171,9 +217,10 @@ class _nuovaFattura extends State<nuovaFattura> {
                                   width: 100,
                                   height: 50,
                                   child: TextField(
+                                      readOnly: true,
                                       controller: nFat,
                                       decoration: const InputDecoration(
-                                          prefixIcon: Icon(Icons.inventory),
+                                          prefixIcon: Icon(Icons.lock),
                                           labelText: 'N.Fat.',
                                           floatingLabelStyle: TextStyle(
                                             fontSize: 14,
@@ -187,21 +234,21 @@ class _nuovaFattura extends State<nuovaFattura> {
                                   child: Padding(
                                 padding: const EdgeInsets.all(4.0),
                                 child: TextField(
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                    ),
-                                    controller: dataFat,
-                                    decoration: const InputDecoration(
-                                        icon: Icon(Icons.calendar_today),
-                                        labelStyle: TextStyle(
-                                          fontSize: 10,
-                                        ),
-                                        labelText: "Data Fattura",
-                                        floatingLabelStyle: TextStyle(
-                                          fontSize: 14,
-                                        )),
-                                    readOnly: true,
-                                    onTap: () async {
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                  ),
+                                  controller: dataFat,
+                                  decoration: const InputDecoration(
+                                      icon: Icon(Icons.lock),
+                                      labelStyle: TextStyle(
+                                        fontSize: 10,
+                                      ),
+                                      labelText: "Data Fattura",
+                                      floatingLabelStyle: TextStyle(
+                                        fontSize: 14,
+                                      )),
+                                  readOnly: true,
+                                  /*onTap: () async {
                                       DateTime? pickedDate =
                                           await showDatePicker(
                                         context: context,
@@ -221,7 +268,8 @@ class _nuovaFattura extends State<nuovaFattura> {
                                           dataFat.text = formatDate;
                                         });
                                       }
-                                    }),
+                                    }*/
+                                ),
                               )),
                               Flexible(
                                   child: Padding(
@@ -262,14 +310,10 @@ class _nuovaFattura extends State<nuovaFattura> {
                                     }),
                               )),
                             ]),
-                            Padding(
+                            /* Padding(
                               padding: const EdgeInsets.all(9.0),
-                              child: DropdownButtonFormField<String>(
-                                decoration: InputDecoration(
-                                  label: Text("Utente"),
-                                  border: OutlineInputBorder(),
-                                ),
-                                hint: Text('seleziona un utente'),
+                              child: DropdownButton<String>(
+                                //    hint: Text('seleziona un utente'),
                                 isDense: true,
                                 isExpanded:
                                     true, // Key property to handle text overflow
@@ -303,6 +347,18 @@ class _nuovaFattura extends State<nuovaFattura> {
                                 // After selecting the desired option,it will
                                 // change button value to selected value
                               ),
+                            ),*/
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: TextFormField(
+                                initialValue: nome.text + " " + cognome.text,
+                                readOnly: true,
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  suffixIcon: Icon(Icons.lock),
+                                  labelText: 'Utente',
+                                ),
+                              ),
                             ),
                             Row(
                               children: <Widget>[
@@ -313,7 +369,7 @@ class _nuovaFattura extends State<nuovaFattura> {
                                     width: 120,
                                     height: 50,
                                     child: TextField(
-                                        controller: importo,
+                                        controller: importo1,
                                         keyboardType: TextInputType.number,
                                         decoration: const InputDecoration(
                                           labelStyle: TextStyle(fontSize: 10),
@@ -341,7 +397,7 @@ class _nuovaFattura extends State<nuovaFattura> {
                                 Padding(
                                   padding: const EdgeInsets.only(right: 10.0),
                                   child: DropdownMenu<String>(
-                                    initialSelection: "SP",
+                                    initialSelection: tipoSpesa,
                                     label: const Text("Tipo spesa"),
                                     dropdownMenuEntries:
                                         itemsSpesa.map((String items) {
@@ -414,9 +470,9 @@ class _nuovaFattura extends State<nuovaFattura> {
                                       }),
                                 ]),
                                 Row(children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: const Text(' Tracciato  '),
+                                  const Padding(
+                                    padding: EdgeInsets.all(10.0),
+                                    child: Text(' Tracciato  '),
                                   ),
                                   Switch(
                                       // This bool value toggles the switch.
@@ -429,14 +485,14 @@ class _nuovaFattura extends State<nuovaFattura> {
                                           tracciato = value;
                                         });
                                       }),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
+                                  const Padding(
+                                    padding: EdgeInsets.all(8.0),
                                     child: Text('Natura Iva'),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.only(left: 20),
                                     child: DropdownButton<String>(
-                                      value: natIva,
+                                      value: natIva1,
                                       // Array list of items
                                       items: itemsNatIva.map((String items) {
                                         return DropdownMenuItem(
@@ -448,7 +504,7 @@ class _nuovaFattura extends State<nuovaFattura> {
                                       // change button value to selected value
                                       onChanged: (String? newValue) {
                                         setState(() {
-                                          natIva = newValue!;
+                                          natIva1 = newValue!;
                                         });
                                       },
                                     ),
@@ -463,8 +519,8 @@ class _nuovaFattura extends State<nuovaFattura> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 15),
+                                    const Padding(
+                                      padding: EdgeInsets.only(left: 15),
                                       child: Text("Bollo"),
                                     ),
                                     //  Flexible(child: Text("data")),
@@ -474,6 +530,7 @@ class _nuovaFattura extends State<nuovaFattura> {
                                         activeColor: Colors.blueAccent,
                                         // title: Text("Bollo"),
                                         value: aggiungi,
+
                                         onChanged: (newValue) {
                                           setState(() {
                                             aggiungi = newValue!;
@@ -496,8 +553,8 @@ class _nuovaFattura extends State<nuovaFattura> {
                                             labelText: 'importo',
                                           )),
                                     )),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
+                                    const Padding(
+                                      padding: EdgeInsets.all(8.0),
                                       child: Text('Natura Iva'),
                                     ),
                                     DropdownButton<String>(
@@ -532,10 +589,10 @@ class _nuovaFattura extends State<nuovaFattura> {
                                   children: [
                                     ElevatedButton(
                                       style: ElevatedButton.styleFrom(
-                                        elevation: 7,
                                         backgroundColor: Colors.blueAccent,
                                         foregroundColor: Colors.white,
                                         shadowColor: Colors.black,
+                                        elevation: 7,
                                       ),
                                       onPressed: () {
                                         (cfUtente != null) && (cfUtente != "")
@@ -572,15 +629,14 @@ class _nuovaFattura extends State<nuovaFattura> {
                                                           ],
                                                         );
                                                       }
-                                                      ;
                                                     })
                                               };
                                       },
                                       child: isLoading
-                                          ? CircularProgressIndicator(
+                                          ? const CircularProgressIndicator(
                                               color: Colors.white,
                                             )
-                                          : Text('Invia'),
+                                          : const Text('Invia'),
                                       /* isLoading
                                         ? CircularProgressIndicator(
                                             color: Colors.white)
@@ -596,7 +652,7 @@ class _nuovaFattura extends State<nuovaFattura> {
                                       onPressed: () {
                                         initState();
                                       },
-                                      child: Text('Nuovo'),
+                                      child: const Text('Nuovo'),
                                       /* isLoading
                                         ? CircularProgressIndicator(
                                             color: Colors.white)
@@ -610,12 +666,12 @@ class _nuovaFattura extends State<nuovaFattura> {
                                     child: Padding(
                                   padding: const EdgeInsets.all(10.0),
                                   child: TextField(
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       labelText: 'Esito operazione',
                                     ),
                                     controller: risultato,
                                     enabled: false,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: (Colors.black),
                                       fontSize: 10,
                                       fontWeight: FontWeight.bold,
@@ -661,9 +717,6 @@ class _nuovaFattura extends State<nuovaFattura> {
     print(user!.nome);
 
     String cfProp = prop[0].username;
-    String pw = prop[0].password;
-    String pincode = prop[0].pincode;
-    String piva = prop[0].piva;
 
     SharedPreferences shared = await SharedPreferences.getInstance();
     String? username = shared.getString('username');
@@ -674,20 +727,20 @@ class _nuovaFattura extends State<nuovaFattura> {
         username: username!,
         aggiungi: aggiungi ? "SI" : "NO",
         proprietario: cfProp,
-        nome: user!.nome,
+        nome: user.nome,
         cognome: user.cognome,
         cf: cfUtente!,
-        natIva1: natIva,
+        natIva1: natIva1!,
         natIva2: natIva2,
         dataFat: dataFat.text,
         dataPag: dataPag.text,
-        importo1: double.parse(importo.text),
+        importo1: double.parse(importo1.text),
         importo2: aggiungi ? double.parse(importo2.text) : 0,
         protocollo: protocollo,
         opposizione: opposiz ? "SI" : "NO",
         anticipato: anticip ? "SI" : "NO",
         tracciato: tracciato ? "SI" : "NO",
-        tipoSpesa: tipoSpesa,
+        tipoSpesa: tipoSpesa!,
         nDisp: int.parse(nDisp.text),
         nFat: nFat.text);
     try {
@@ -713,7 +766,7 @@ class _nuovaFattura extends State<nuovaFattura> {
 
       final url =
           //Uri.parse('http://10.0.2.2:8080/invio'); //Repclace Your Endpoint
-          Uri.parse('http://$proxy/invio'); //Repclace Your Endpoint
+          Uri.parse('http://$proxy/modifica'); //Repclace Your Endpoint
       final headers = {'Content-Type': 'application/json'};
       //final body = jsonEncode({'name': 'John Doe', 'email': 'john@example.com'});
 
@@ -752,8 +805,8 @@ class _nuovaFattura extends State<nuovaFattura> {
           "dataFat": dataFat.text,
           "dataPag": dataPag.text,
           "numFat": nFat.text,
-          "impTot1": importo.text,
-          "natIva1": natIva,
+          "impTot1": importo1.text,
+          "natIva1": natIva1,
           "tipoSpesa": tipoSpesa,
           "aggiungi": aggiungi,
           "bollo": imp2,
@@ -766,9 +819,8 @@ class _nuovaFattura extends State<nuovaFattura> {
       });
 
       try {
-        final response = await http
-            .post(url, headers: headers, body: body)
-            .timeout(Duration(seconds: 2));
+        final response = await http.post(url, headers: headers, body: body);
+        // .timeout(Duration(seconds: 2));
         //final url2 = Uri.parse('http://google.com');
         //final response = await http.post(url);
 
@@ -842,7 +894,7 @@ class _nuovaFattura extends State<nuovaFattura> {
         print(e);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Si è verificato un problema."),
+            content: Text('Si è verificato un errore.'),
           ),
         );
       }

@@ -11,7 +11,7 @@ final pw = TextEditingController();
 final pc = TextEditingController();
 final pi = TextEditingController();
 
-final sql = SQLite();
+SQLite sql = SQLite();
 
 class ProprietarioRoute extends StatelessWidget {
   const ProprietarioRoute({super.key});
@@ -33,96 +33,104 @@ class ProprietarioRoute extends StatelessWidget {
         // backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         backgroundColor: Colors.blueAccent.withOpacity(0.9),
       ),
-      body: Container(
-        alignment: Alignment.topCenter,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Card(
-              child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-            const ListTile(
-              leading: Icon(Icons.abc),
-              title: Text('Compila con tutti i tuoi dati'),
-              subtitle: Text("Questo permetterà di inviare le fatture al sts "),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: cf,
-                decoration: const InputDecoration(
-                  labelText: 'codice fiscale',
-                  border: OutlineInputBorder(),
-                ),
+      body: Column(children: [
+        Container(
+          alignment: Alignment.topCenter,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Card(
+                child:
+                    Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+              const ListTile(
+                leading: Icon(Icons.abc),
+                title: Text('Compila con tutti i tuoi dati'),
+                subtitle:
+                    Text("Questo permetterà di inviare le fatture al sts "),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: pw,
-                decoration: const InputDecoration(
-                  labelText: 'password',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: pc,
-                decoration: const InputDecoration(
-                  labelText: 'pincode',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: pi,
-                decoration: const InputDecoration(
-                  labelText: 'p.iva',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                        foregroundColor: Colors.white,
-                      ),
-                      onPressed: () {
-                        _salva(context);
-                      },
-                      child: const Text('Salva')),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
-                      foregroundColor: Colors.white,
-                    ),
-                    onPressed: carica,
-                    child: Text('Carica'),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: cf,
+                  decoration: const InputDecoration(
+                    labelText: 'codice fiscale',
+                    border: OutlineInputBorder(),
                   ),
-                  ElevatedButton(
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: pw,
+                  decoration: const InputDecoration(
+                    labelText: 'password',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: pc,
+                  decoration: const InputDecoration(
+                    labelText: 'pincode',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: pi,
+                  decoration: const InputDecoration(
+                    labelText: 'p.iva',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueAccent,
+                          foregroundColor: Colors.white,
+                          elevation: 7,
+                        ),
+                        onPressed: () {
+                          _salva(context);
+                        },
+                        child: const Text('Salva')),
+                    ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blueAccent,
                         foregroundColor: Colors.white,
+                        elevation: 7,
                       ),
-                      onPressed: cancella,
-                      child: Text('Cancella')),
-                ],
-              ),
-            )
-          ])),
+                      onPressed: carica,
+                      child: Text('Carica'),
+                    ),
+                    ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueAccent,
+                          foregroundColor: Colors.white,
+                          elevation: 7,
+                        ),
+                        onPressed: cancella,
+                        child: Text('Cancella')),
+                  ],
+                ),
+              )
+            ])),
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
+      ]),
+
+      /*     floatingActionButton: FloatingActionButton(
         onPressed: deleteDb,
         child: Icon(Icons.delete),
-      ),
+      ),*/
     );
   }
 }
@@ -176,9 +184,8 @@ void cancella() {
 }
 
 Future<void> carica() async {
-  var prop = await sql.getProprietario();
-
   try {
+    var prop = await sql.getProprietario();
     if (prop.isNotEmpty) {
       cf.text = prop[0].username;
       pw.text = prop[0].password;

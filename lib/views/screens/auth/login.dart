@@ -1,5 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:sts/main.dart';
 import 'package:sts/menu_principale.dart';
 import 'package:sts/models/user.dart';
@@ -14,6 +18,9 @@ import 'package:sts/controllers/proxy.dart';
 
 final username = TextEditingController();
 final password = TextEditingController();
+final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+bool isLoading = false;
+bool visibile = true;
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -23,16 +30,44 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  Future<String> pathDb() async {
+    String path = await getDatabasesPath();
+    print(path);
+    final file = File("${path}/sts.db");
+    final Directory directory = Directory(path);
+    final List<FileSystemEntity> files = directory.listSync();
+
+    for (final FileSystemEntity file in files) {
+      final FileStat fileStat = await file.stat();
+      print('Path: ${file.path}');
+      print('Type: ${fileStat.type}');
+      print('Changed: ${fileStat.changed}');
+      print('Modified: ${fileStat.modified}');
+      print('Accessed: ${fileStat.accessed}');
+      print('Mode: ${fileStat.mode}');
+      print('Size: ${fileStat.size}');
+    }
+    /*
+    final file3 = File("${path}/sts_copia.db");
+
+    try {
+      var file2 = File(path);
+      file2.copy(file3.toString());
+      return path;
+    } catch (e) {
+      log(e.toString());
+    }*/
+    return path;
+  }
+
   @override
   initState() {
     print("initState Called");
     username.clear();
     password.clear();
+    pathDb();
   }
 
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  bool isLoading = false;
-  bool visibile = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -223,7 +258,8 @@ class _LoginState extends State<Login> {
                           if (resp == 200) {
                             a = "Login effettuato con successo";
                             final prefs = await SharedPreferences.getInstance();
-                            await prefs.setString('username', username.text);
+                            await prefs.setString(
+                                'username', username.text.toLowerCase());
                             Navigator.pushAndRemoveUntil<void>(context,
                                 MaterialPageRoute(builder: (context) {
                               //return Mainscreen(username.text);

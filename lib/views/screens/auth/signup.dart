@@ -12,6 +12,9 @@ final username = TextEditingController();
 final passwordKey = TextEditingController();
 final passwordKeyCont = TextEditingController();
 
+bool password = false;
+bool password2 = false;
+
 class Signup extends StatefulWidget {
   const Signup({super.key});
 
@@ -23,6 +26,15 @@ class _SigninState extends State<Signup> {
   // const Signin({super.key});
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool isLoading = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    passwordKey.clear();
+    passwordKeyCont.clear();
+    username.clear();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,6 +149,7 @@ class _SigninState extends State<Signup> {
                       height: 20,
                     ),
                     TextFormField(
+                        obscureText: !password,
                         controller: passwordKey,
                         validator: (value) {
                           if (value!.isEmpty) {
@@ -161,11 +174,18 @@ class _SigninState extends State<Signup> {
                               letterSpacing: 0.1,
                             ),
                             prefixIcon: Icon(Icons.password),
-                            suffixIcon: Icon(Icons.visibility))),
+                            suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    password = !(password);
+                                  });
+                                },
+                                icon: Icon(Icons.visibility)))),
                     const SizedBox(
                       height: 20,
                     ),
                     TextFormField(
+                        obscureText: !password2,
                         // controller: passwordKeyCont,
                         validator: (value) {
                           if (value != passwordKey.text) {
@@ -191,7 +211,13 @@ class _SigninState extends State<Signup> {
                               letterSpacing: 0.1,
                             ),
                             prefixIcon: Icon(Icons.password),
-                            suffixIcon: Icon(Icons.visibility))),
+                            suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    password2 = !(password2);
+                                  });
+                                },
+                                icon: Icon(Icons.visibility)))),
                     const SizedBox(
                       height: 40,
                     ),
@@ -210,10 +236,11 @@ class _SigninState extends State<Signup> {
                                 const SnackBar(
                                     content: Text(
                                         "Registrazione effettuata correttamente")));
-                            Navigator.push(context,
+                            Navigator.pop(context);
+                            /*  Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
                               return Login();
-                            }));
+                            }));*/
                           } else if (a != 0) {
                             ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -269,7 +296,7 @@ class _SigninState extends State<Signup> {
                           child: Text('torna alla pagina di'),
                         ),
                         InkWell(
-                          onTap: () {
+                          onTap: () async {
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
                               return Login();

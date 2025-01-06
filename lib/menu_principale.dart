@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
+//import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sts/elenco_fatture.dart';
 import 'package:sts/elenco_utenti.dart';
+import 'package:sts/impostazioni.dart';
 import 'package:sts/nuova_fattura.dart';
 import 'package:sts/dati_proprietario.dart';
 import 'package:sts/sts_db.dart';
 import 'package:sts/nuovo_utente.dart';
 import 'package:sts/views/screens/auth/login.dart';
+import 'capitalize.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key, required this.user});
@@ -72,6 +75,10 @@ class _MyAppState extends State<MyHomePage> {
               //1.item
             }
             if (index == 1) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Impostazioni()),
+              );
               //2.item
             }
             if (index == 2) {
@@ -136,19 +143,31 @@ class _MyAppState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    String user = widget.userText.toUpperCase();
+    String user = widget.userText.capitalize();
     return Scaffold(
       //backgroundColor: Color.fromARGB(255, 170, 193, 232),
       appBar: AppBar(
+        /*bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(1.0),
+            child: Container(
+              color: Colors.black,
+              height: 1.0,
+            )),*/
         centerTitle: true,
         leading: Icon(Icons.account_box),
         // backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         backgroundColor: Colors.blueAccent.withOpacity(0.9),
-        title: ClipRRect(
-          borderRadius: BorderRadius.circular(6),
-          child: Image.asset(
-            'assets/images/STS_Logo2.PNG',
-            fit: BoxFit.cover,
+
+        title: Container(
+          decoration: BoxDecoration(
+            border: Border.all(width: 1),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: Image.asset(
+              'assets/images/STS_Logo2.PNG',
+              fit: BoxFit.cover,
+            ),
           ),
         ),
 
@@ -201,85 +220,102 @@ class _MyAppState extends State<MyHomePage> {
         ],
       ),
 
+/*per cancellare Db
       floatingActionButton: const FloatingActionButton(
         onPressed: deleteDb,
         child: Icon(Icons.delete),
-      ),
+      ),*/
 
-      body: Column(
-        children: [
-          const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.only(left: 16, right: 0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Container(
-                      width: MediaQuery.sizeOf(context).width - 30,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black),
-                        borderRadius: BorderRadius.circular(10),
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.topRight,
-                          colors: [
-                            Colors.blueAccent.withOpacity(0.3),
-                            Colors.blueAccent.withOpacity(0.3),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Container(
+                        width: MediaQuery.sizeOf(context).width - 30,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(5),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 5,
+                              blurRadius: 7,
+                              offset:
+                                  Offset(0, 3), // changes position of shadow
+                            ),
+                          ],
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.topRight,
+                            colors: [
+                              Colors.blueAccent.withOpacity(0.9),
+                              Colors.blueAccent.withOpacity(0.9),
+                            ],
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(left: 10),
+                              child: Icon(Icons.person),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                "Benvenuto $user",
+                                style: GoogleFonts.lato(fontSize: 20),
+
+                                /*TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold),*/
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                      child: Row(
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.only(left: 10),
-                            child: Icon(Icons.person),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              "Benvenuto $user",
-                              style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    //                  SizedBox(height: 0),
+                      //                  SizedBox(height: 0),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            SafeArea(
+              child: Container(
+                height: 650,
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  padding: const EdgeInsets.all(2),
+                  children: [
+                    creaCard("I tuoi dati", "assets/images/id.png", 0),
+                    creaCard("Impostazioni", "assets/images/settings.png", 1),
+                    creaCard("Nuovo utente", "assets/images/user.png", 2),
+                    creaCard("Elenco utenti", "assets/images/users.png", 3),
+                    creaCard(
+                        "Nuova fattura", "assets/images/nuova_fattura.png", 4),
+                    creaCard("Elenco fatture",
+                        "assets/images/elenco_fatture.png", 5),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
-          Container(
-            height: 650,
-            child: GridView.count(
-              crossAxisCount: 2,
-              padding: const EdgeInsets.all(2),
-              children: [
-                creaCard("I tuoi dati", "assets/images/id.png", 0),
-                creaCard("Impostazioni", "assets/images/settings.png", 1),
-                creaCard("Nuovo utente", "assets/images/user.png", 2),
-                creaCard("Elenco utenti", "assets/images/users.png", 3),
-                creaCard("Nuova fattura", "assets/images/nuova_fattura.png", 4),
-                creaCard(
-                    "Elenco fatture", "assets/images/elenco_fatture.png", 5),
-              ],
-            ),
-          ),
-          /* Image.asset(
-            'assets/images/STS_Logo2.PNG',
-
-            fit: BoxFit.cover,
-
-            // width: 300,
-            // height: 300,
-          ),*/
-        ],
+            /* Image.asset(
+              'assets/images/STS_Logo2.PNG',
+        
+              fit: BoxFit.cover,
+        
+              // width: 300,
+              // height: 300,
+            ),*/
+          ],
+        ),
       ),
     );
   }

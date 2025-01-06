@@ -1,4 +1,6 @@
-import 'dart:math';
+//import 'dart:math';
+import 'dart:developer';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sts/models/fattura.dart';
 import 'package:sts/nuova_fattura.dart';
@@ -46,14 +48,6 @@ class SQLite {
 
   Future<void> _onCreate(Database database, int version) async {
     final db = database;
-    /* await db.execute(""" CREATE TABLE IF NOT EXISTS users(
-            id INTEGER PRIMARY KEY,
-            name TEXT,
-            email TEXT,
-            password INTEGER,
-            phoneNumber INTEGER
-          )
- """);*/
 
     await db.execute(""" CREATE TABLE IF NOT EXISTS proprietario(
             id INTEGER,
@@ -81,7 +75,6 @@ class SQLite {
  """);
 
     await db.execute(""" CREATE TABLE IF NOT EXISTS fatture(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT,
             proprietario TEXT,
             cf TEXT,
@@ -100,15 +93,11 @@ class SQLite {
             tipoSpesa TEXT,
             natIva1 TEXT,
             natIva2 TEXT,
-            nFat TEXT
+            nFat TEXT,
+            PRIMARY KEY (nFat,dataFat,username)
           )
  """);
   }
-
-  //QUIQQU98A01H501H
-  //Salve123
-  //3167676525
-  //65432109876
 
   Future<void> getPathDb() async {
     String path = await getDatabasesPath();
@@ -167,10 +156,51 @@ class SQLite {
     ];
   }
 
-  Future<List<Fattura>> listaFatture() async {
+  Future<List<Utente>> listaUtentiByCf(String cf) async {
+    SharedPreferences shared = await SharedPreferences.getInstance();
+    String? user = shared.getString('username');
+
     final db = await database;
 
-    final List<Map<String, Object?>> fattureMaps = await db.query('fatture');
+    final List<Map<String, Object?>> utentiMaps = await db
+        .query('utente', where: 'user=? and cf=?', whereArgs: [user, cf]);
+
+    return [
+      for (final {
+            'user': user as String,
+            'cf': cf as String,
+            'nome': nome as String,
+            'cognome': cognome as String,
+            'indirizzo': indirizzo as String,
+            'cap': cap as String,
+            'città': citta as String,
+            'pv': pv as String,
+            'tel': tel as String,
+            'email': email as String,
+          } in utentiMaps)
+        Utente(
+          user: user,
+          cf: cf,
+          nome: nome,
+          cognome: cognome,
+          indirizzo: indirizzo,
+          cap: cap,
+          citta: citta,
+          pv: pv,
+          tel: tel,
+          email: email,
+        ),
+    ];
+  }
+
+  Future<List<Fattura>> listaFatture() async {
+    SharedPreferences shared = await SharedPreferences.getInstance();
+    String? username = shared.getString('username');
+
+    final db = await database;
+
+    final List<Map<String, Object?>> fattureMaps = await db
+        .query('fatture', where: ('username = ?'), whereArgs: [username]);
 
     return [
       for (final {
@@ -221,8 +251,8 @@ class SQLite {
   Future<List<Fattura>> listaFattureUser(String? user) async {
     final db = await database;
 
-    final List<Map<String, Object?>> fattureMaps =
-        await db.query('fatture', where: 'username=?', whereArgs: [user]);
+    final List<Map<String, Object?>> fattureMaps = await db.query('fatture',
+        where: 'username=? ', whereArgs: [user], orderBy: "dataFat DESC");
 
     return [
       for (final {
@@ -294,11 +324,37 @@ class SQLite {
           } in utentiMaps)
         "$cf  $nome $cognome",
     ];
-    /*}  on Exception {
-      //throw Exception('error fetching data');
-      List<String> a = [];
-      return a;
-    }*/
+  }
+
+  Future<Fattura> getFatturaByProtocollo(String protocollo) async {
+    SharedPreferences shared = await SharedPreferences.getInstance();
+    String? user = shared.getString('username');
+    final db = await database;
+    final List<Map<String, dynamic>> fat = await db
+        .query('fatture', where: 'protocollo=?', whereArgs: [protocollo]);
+
+    print("trovato " + fat[0]['username']);
+
+    return Fattura(
+        username: fat[0]['username'],
+        aggiungi: fat[0]['aggiungi'],
+        proprietario: fat[0]['proprietario'],
+        nome: fat[0]['nome'],
+        cognome: fat[0]['cognome'],
+        cf: fat[0]['cf'],
+        natIva1: fat[0]['natIva1'],
+        natIva2: fat[0]['natIva2'],
+        dataFat: fat[0]['dataFat'],
+        dataPag: fat[0]['dataPag'],
+        importo1: fat[0]['importo1'],
+        importo2: fat[0]['importo2'],
+        protocollo: protocollo,
+        opposizione: fat[0]['opposizione'],
+        anticipato: fat[0]['anticipato'],
+        tracciato: fat[0]['tracciato'],
+        tipoSpesa: fat[0]['tipoSpesa'],
+        nDisp: fat[0]['nDisp'],
+        nFat: fat[0]['nFat']);
   }
 
   Future<Utente?> getUtenteByCf(String cf) async {
@@ -328,18 +384,32 @@ class SQLite {
     }
   }
 
-  Future<void> deleteUtente(String cf) async {
-    final db = await database;
-    //int i = await db.rawDelete('DELETE FROM utente WHERE id = ?', ['1']);
+  Future<void> deleteFattura(String protocollo) async {
+    SharedPreferences shared = await SharedPreferences.getInstance();
+    String? user = shared.getString('username');
 
-    //print(await db.query('utente', where: 'id=?', whereArgs: [id]));
-    //  await db.rawDelete('delete from utente where id=0');
-    //print(id);
+    log("protocollo $protocollo");
+
+    final db = await database;
+    try {
+      await db.delete('fatture',
+          where: 'username=? and protocollo=?', whereArgs: [user, protocollo]);
+      log("cancellato $protocollo");
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
+  Future<void> deleteUtente(String cf) async {
+    SharedPreferences shared = await SharedPreferences.getInstance();
+    String? user = shared.getString('username');
+
+    final db = await database;
     try {
       await db.delete(
         'utente',
-        where: 'cf = ?',
-        whereArgs: [cf],
+        where: 'cf = ? and user=? ',
+        whereArgs: [cf, user],
       );
       print('cancellato');
     } catch (e) {
@@ -360,7 +430,6 @@ class SQLite {
     } on DatabaseException catch (e) {
       return null;
     }
-    return null;
   }
 
   Future<Proprietario> insertProp(Proprietario prop) async {
@@ -371,16 +440,6 @@ class SQLite {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
     return prop;
-  }
-
-  Future<User> insertUSer(User user) async {
-    final db = await database;
-    db.insert(
-      "users",
-      user.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-    return user;
   }
 
   Future<List<Proprietario>> getProprietario() async {
@@ -402,14 +461,5 @@ class SQLite {
         user: maps[index]['user'],
       );
     });
-  }
-
-  Future<void> deleteAllUsers() async {
-    final db = await database;
-    final Batch batch = db.batch();
-
-    batch.delete('users');
-
-    await batch.commit();
   }
 }

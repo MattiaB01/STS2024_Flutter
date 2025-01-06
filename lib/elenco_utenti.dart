@@ -89,7 +89,8 @@ class _ElencoUtenti extends State<ElencoUtenti2> {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
                           // until data is fetched, show loader
-                          return const CircularProgressIndicator();
+                          return const Center(
+                              child: CircularProgressIndicator());
                         } else if (snapshot.data!.isNotEmpty) {
                           // once data is fetched, display it on screen (call buildPosts())
                           print("dati: " + snapshot.data!.isEmpty.toString());

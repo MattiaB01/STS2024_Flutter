@@ -4,8 +4,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:sts/dettagli_fatture.dart';
+import 'package:sts/dettaglio_fattura.dart';
 import 'package:sts/models/fattura.dart';
+import 'package:sts/proprietario.dart';
 
 import 'sts_db.dart';
 
@@ -25,6 +26,12 @@ class ElencoFatture extends StatefulWidget {
 class _ElencoUtenti extends State<ElencoFatture> {
   // var response = fetchFatture();
   var response = listaFattureDb();
+
+  @override
+  void initState() {
+    _setLun();
+  }
+
 /*
   Future<List<Utente>> lista = sql.utenti();
 
@@ -57,13 +64,10 @@ class _ElencoUtenti extends State<ElencoFatture> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text('N.'),
-                        ),
-                        Expanded(flex: 6, child: Text('Cod.Fisc.')),
-                        Expanded(flex: 12, child: Text('Data')),
-                        Expanded(flex: 14, child: Text('Protocollo')),
+                        Expanded(flex: 2, child: Text('N.')),
+                        Expanded(flex: 6, child: Text('Data')),
+                        Expanded(flex: 5, child: Text('Nome')),
+                        Expanded(flex: 12, child: Text('Cognome')),
                       ],
                     ),
                   ),
@@ -93,8 +97,10 @@ class _ElencoUtenti extends State<ElencoFatture> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                DettagliFatture()),
-                                      );
+                                                DettaglioFattura(
+                                                    nProtocollo:
+                                                        fattura[i].protocollo)),
+                                      ).then((_) => _setLun());
                                     },
                                     child: Card(
                                       shape: RoundedRectangleBorder(),
@@ -134,7 +140,7 @@ class _ElencoUtenti extends State<ElencoFatture> {
                                                       AlertDialog(
                                                         title: Text("Elimina"),
                                                         content: const Text(
-                                                            "Confermi l'eliminazione?"),
+                                                            "Confermi l'eliminazione?\nLa fattura verrà eliminata anche dal Sistema tessera sanitaria."),
                                                         actions: <Widget>[
                                                           TextButton(
                                                               onPressed: () =>
@@ -182,6 +188,8 @@ class _ElencoUtenti extends State<ElencoFatture> {
 
   Future<void> deleteFattura() async {
     print("delete");
+
+    //per cancellare dal server
     var proxy = Proxy().getProxy();
     try {
       var result = await http.post(Uri.parse(
@@ -191,6 +199,73 @@ class _ElencoUtenti extends State<ElencoFatture> {
       _setLun();
     } catch (e) {
       print(e.toString());
+    }
+
+    //per cancellare dal sts
+    try {
+      Fattura fattura = await sql.getFatturaByProtocollo(id);
+      List<Proprietario> proprietario = await sql.getProprietario();
+
+      late final imp2;
+      late final naturaBollo;
+      if (aggiungi) {
+        //aggiunta = "SI";
+        imp2 = importo2.text;
+        naturaBollo = natIva2;
+      } else {
+        //aggiunta = "";
+        imp2 = "";
+        naturaBollo = "";
+      }
+
+      final body = jsonEncode({
+        "proprietario": {
+          /*
+      "username": ",
+      "password": "Salve123",
+      "pincode": "3167676525",
+      "piva": "65432109876",*/
+
+          "username": proprietario[0].username,
+          "password": proprietario[0].password,
+          "pincode": proprietario[0].pincode,
+          "piva": proprietario[0].piva,
+        },
+        "fattura": {
+          "username": fattura.username,
+          "proprietario": fattura.proprietario,
+          "utente": fattura.cf,
+          "dataFat": dataFat.text,
+          "dataPag": dataPag.text,
+          "numFat": nFat.text,
+          "impTot1": importo1.text,
+          "natIva1": natIva1,
+          "tipoSpesa": tipoSpesa,
+          "aggiungi": aggiungi,
+          "bollo": imp2,
+          "natIva2": naturaBollo,
+          "numDisp": nDisp.text,
+          "tracciato": tracciato ? "SI" : "NO",
+          "opposizione": opposiz ? "SI" : "NO",
+          "anticipato": anticip ? "SI" : "NO",
+        }
+      });
+      final url =
+          //Uri.parse('http://10.0.2.2:8080/invio'); //Repclace Your Endpoint
+          Uri.parse('http://$proxy/eliminaInvio'); //Repclace Your Endpoint
+      final headers = {'Content-Type': 'application/json'};
+
+      final response = await http.post(url, headers: headers, body: body);
+      //per cancellare db locale
+      try {
+        log("invio protocollo $id");
+        sql.deleteFattura(id);
+        _setLun();
+      } catch (e) {
+        log(e.toString());
+      }
+    } catch (e) {
+      log(e.toString());
     }
   }
 }
