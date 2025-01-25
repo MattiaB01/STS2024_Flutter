@@ -1,9 +1,18 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:sts/proprietario.dart';
 import 'sts_db.dart';
+
+import 'package:restart_app/restart_app.dart';
+
+import 'package:path_provider/path_provider.dart';
+
+import 'package:file_picker/file_picker.dart';
 
 class Impostazioni extends StatelessWidget {
   const Impostazioni({super.key});
@@ -31,6 +40,8 @@ class impostazioni extends StatefulWidget {
 class _impostazioni extends State<impostazioni> {
   bool? delete = false;
   bool? demo = false;
+  bool? backup = false;
+  bool? importaDb = false;
 
   SQLite sql = SQLite();
 
@@ -110,6 +121,27 @@ class _impostazioni extends State<impostazioni> {
                                 demo = value!;
                               })),
                     ),
+                    Theme(
+                      data: ThemeData(unselectedWidgetColor: Colors.black),
+                      child: CheckboxListTile(
+                          activeColor: Colors.blueAccent.withOpacity(0.9),
+                          title: const Text("Esegui backup database"),
+                          value: backup,
+                          onChanged: (bool? value) => setState(() {
+                                backup = value!;
+                              })),
+                    ),
+                    Theme(
+                      data: ThemeData(unselectedWidgetColor: Colors.black),
+                      child: CheckboxListTile(
+                          activeColor: Colors.blueAccent.withOpacity(0.9),
+                          title: const Text(
+                              "Importa backup database, l'app verrà riavviata"),
+                          value: importaDb,
+                          onChanged: (bool? value) => setState(() {
+                                importaDb = value!;
+                              })),
+                    ),
                   ],
                 ),
               ),
@@ -149,8 +181,16 @@ class _impostazioni extends State<impostazioni> {
 
                 if (delete!) {
                   sql.deleteDatabase();
-                  SQLite();
+                  //SQLite();
                 }
+
+                if (backup!) {
+                  eseguiBackup();
+                }
+                if (importaDb!) {
+                  importaBackup();
+                }
+
                 Navigator.of(context).pop();
               },
             ),
@@ -158,6 +198,78 @@ class _impostazioni extends State<impostazioni> {
         );
       },
     );
+  }
+
+  Future<void> importaBackup() async {
+/*    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result != null) {
+      File file = File(result.files.single.path!);
+    } else {
+      // User canceled the picker
+    }*/
+
+    sql.closeDb();
+    Directory appDocDirectory = await getApplicationDocumentsDirectory();
+
+    File dest = File('${appDocDirectory.path}/Backup_sts.db');
+
+    (await dest.exists()) ? print("esiste") : print("non trovato");
+
+    if (await dest.exists()) {
+      final dbFolder = await getDatabasesPath();
+      File source1 = File('$dbFolder/sts.db');
+      dest.copy("$dbFolder/sts.db");
+    }
+
+    Restart.restartApp();
+  }
+
+  Future<void> eseguiBackup() async {
+    // var dir = await getApplicationDocumentsDirectory();
+    final dbFolder = await getDatabasesPath();
+    File source1 = File('$dbFolder/sts.db');
+
+    bool a = await source1.exists();
+
+    (a) ? print("esiste") : print("non esiste");
+
+    print(source1.toString());
+    //Directory copyTo = Directory("storage/emulated/0/Sqlite Backup");
+    Directory appDocDirectory = await getApplicationDocumentsDirectory();
+
+    try {
+      source1.copy('${appDocDirectory.path}/Backup_sts.db');
+    } catch (e) {
+      log(e.toString());
+    }
+
+    final Email email = Email(
+      body: 'Backup database STS',
+      subject: 'Backup database STS',
+      recipients: [''],
+      //cc: ['cc@example.com'],
+      //bcc: ['bcc@example.com'],
+      attachmentPaths: ['${appDocDirectory.path}/Backup_sts.db'],
+      isHTML: false,
+    );
+
+    await FlutterEmailSender.send(email);
+
+    /*   if ((await copyTo.exists())) {
+                  // print("Path exist");
+                  var status = await Permission.storage.status;
+                 widget if (!status.isGranted) {
+                    await Permission.storage.request();
+                  }
+                } else {
+                  print("not exist");
+                  if (await Permission.storage.request().isGranted) {
+                    // Either the permission was already granted before or the user just granted it.
+                    await copyTo.create();
+                  } else {
+                    print('Please give permission');
+                  }*/
   }
 
   Future<void> proprietarioDemo() async {

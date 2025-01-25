@@ -24,7 +24,7 @@ class Signup extends StatefulWidget {
 
 class _SigninState extends State<Signup> {
   // const Signin({super.key});
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool isLoading = false;
 
   @override

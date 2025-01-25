@@ -18,7 +18,7 @@ import 'package:sts/controllers/proxy.dart';
 
 final username = TextEditingController();
 final password = TextEditingController();
-final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
 bool isLoading = false;
 bool visibile = true;
 
@@ -30,6 +30,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   Future<String> pathDb() async {
     String path = await getDatabasesPath();
     print(path);
@@ -62,6 +63,7 @@ class _LoginState extends State<Login> {
 
   @override
   initState() {
+    super.initState();
     print("initState Called");
     username.clear();
     password.clear();

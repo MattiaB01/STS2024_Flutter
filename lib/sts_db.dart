@@ -193,6 +193,11 @@ class SQLite {
     ];
   }
 
+  Future<void> closeDb() async {
+    final db = await database;
+    db.close();
+  }
+
   Future<List<Fattura>> listaFatture() async {
     SharedPreferences shared = await SharedPreferences.getInstance();
     String? username = shared.getString('username');
@@ -201,6 +206,8 @@ class SQLite {
 
     final List<Map<String, Object?>> fattureMaps = await db
         .query('fatture', where: ('username = ?'), whereArgs: [username]);
+
+    db.close();
 
     return [
       for (final {
@@ -253,6 +260,64 @@ class SQLite {
 
     final List<Map<String, Object?>> fattureMaps = await db.query('fatture',
         where: 'username=? ', whereArgs: [user], orderBy: "dataFat DESC");
+
+    return [
+      for (final {
+            'cf': cf as String,
+            'username': username as String,
+            'nome': nome as String,
+            'cognome': cognome as String,
+            'proprietario': proprietario as String,
+            'importo1': importo1 as double,
+            'importo2': importo2 as double,
+            'dataFat': dataFat as String,
+            'dataPag': dataPag as String,
+            'aggiungi': aggiungi as String,
+            'protocollo': protocollo as String,
+            'opposizione': opposizione as String,
+            'anticipato': anticipato as String,
+            'tracciato': tracciato as String,
+            'nDisp': nDisp as int,
+            'tipoSpesa': tipoSpesa as String,
+            'natIva1': natIva1 as String,
+            'natIva2': natIva2 as String,
+            'nFat': nFat as String
+          } in fattureMaps)
+        Fattura(
+          username: username,
+          aggiungi: aggiungi,
+          cf: cf,
+          nome: nome,
+          cognome: cognome,
+          proprietario: proprietario,
+          natIva1: natIva1,
+          natIva2: natIva2,
+          dataFat: dataFat,
+          dataPag: dataPag,
+          importo1: importo1,
+          importo2: importo2,
+          protocollo: protocollo,
+          opposizione: opposizione,
+          anticipato: anticipato,
+          tracciato: tracciato,
+          tipoSpesa: tipoSpesa,
+          nDisp: nDisp,
+          nFat: nFat,
+        ),
+    ];
+  }
+
+  Future<List<Fattura>> listaFattureUserFiltro(
+      String? daData, String? aData) async {
+    SharedPreferences shared = await SharedPreferences.getInstance();
+    String? username = shared.getString('username');
+
+    final db = await database;
+
+    final List<Map<String, Object?>> fattureMaps = await db.query('fatture',
+        where: 'username=? and dataFat<=? and dataFat>=? ',
+        whereArgs: [username, aData, daData],
+        orderBy: "dataFat DESC");
 
     return [
       for (final {
