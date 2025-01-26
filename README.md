@@ -17,13 +17,11 @@ Qui elencate le funzioni principali:
 - recupero password dimenticata
 - caricamento dati per funzionamento in modalità demo/test
 - login/registrazione/recupero password attraverso api server
-  ![login](https://github.com/user-![registrazione](https://github.com/user-attachments/assets/f9c7b093-5be5-4d73-8b6b-efa7a214affc)![recuperopw](https://github.com/user-attachments/assets/1bb43f34-5fd4-4ead-b31a-a8fa2d60f22f)
-![recuperopw](https://github.com/user-attachments/assets/23154bb1-bc4d-477b-b053-bf1e707c3497)
-
-attachments/assets/0a465d25-fea0-477f-bdd6-18c7c310d12f)
-![nuovoutente](https://github.com/user-attachments/assets/e486fa77-f42e-46c6-b818-f6f34d05b0![nuovafattura](https://github.com/user-attachments/assets/20b18201-c141-48b6-90ff-cb93c71321c8)
-40)
-
-![main](https://github.com/user-![elencofatture](https://github.com/user-attachments/assets/6d9bdee1-c7fe-4a52-a7cd-b9c0e5dfae98)
-attachments/assets/fd666a2d-e737-40e6-be05-4af4c256a7f1)
-![impostazioni](https://github.com/user-attachments/assets/8dd42c20-2fb7-4c8d-93a4-fc7c428a662f)
+ ![login](https://github.com/user-attachments/assets/9e068b4d-6bf0-4bad-a009-ea7af2802992)
+![registrazione](https://github.com/user-attachments/assets/a9c531b6-be26-46b6-80c3-73e148117471)
+![recuperopw](https://github.com/user-attachments/assets/55ece4eb-36cb-47d6-9f5d-ded789f60a71)
+![main](https://github.com/user-attachments/assets/1fc02a7f-146d-4443-b6d9-5ffed0f066b0)
+![nuovafattura](https://github.com/user-attachments/assets/df5b494d-b652-474c-819e-b641c019ec24)
+![nuovoutente](https://github.com/user-attachments/assets/7238165a-86f5-4952-ad17-446415f9b37f)
+![impostazioni](https://github.com/user-attachments/assets/76db8ddb-95d0-4915-89b1-523a2a34a10a)
+![elencofatture](https://github.com/user-attachments/assets/f4fd0a18-d024-4462-b658-1837c3bf8ec9)
