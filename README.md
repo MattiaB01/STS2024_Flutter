@@ -1,7 +1,7 @@
 # sts
 Sistema Tessera Sanitaria
 
-## Getting Started
+## Descrizione
 
 Applicazione in Flutter per l'invio al sistema tessera sanitaria delle detrazioni fiscali per le professioni sanitarie.
 
