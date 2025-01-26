@@ -44,6 +44,7 @@ dependencies:
   flutter_email_sender: ^6.0.3
   restart_app: ^1.2.1
   file_picker: ^8.1.7
+  email_validator: ^3.0.0
 
 dev_dependencies:
   flutter_test:

@@ -7,7 +7,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:sts/main.dart';
 import 'package:sts/menu_principale.dart';
 import 'package:sts/models/user.dart';
-import 'package:sts/views/screens/auth/recovery.dart';
+import 'package:sts/views/screens/auth/login.dart';
 import 'package:sts/views/screens/auth/signup.dart';
 import 'package:sts/views/screens/main/mainScreen.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,19 +18,21 @@ import 'dart:io';
 import 'package:sts/controllers/proxy.dart';
 
 final username = TextEditingController();
+final codice = TextEditingController();
 final password = TextEditingController();
 
 bool isLoading = false;
+bool isLoading2 = false;
 bool visibile = true;
 
-class Login extends StatefulWidget {
-  const Login({super.key});
+class Recovery extends StatefulWidget {
+  const Recovery({super.key});
 
   @override
-  State<Login> createState() => _LoginState();
+  State<Recovery> createState() => _RecoveryState();
 }
 
-class _LoginState extends State<Login> {
+class _RecoveryState extends State<Recovery> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   Future<String> pathDb() async {
     String path = await getDatabasesPath();
@@ -67,6 +69,7 @@ class _LoginState extends State<Login> {
     super.initState();
     print("initState Called");
     username.clear();
+    codice.clear();
     password.clear();
     pathDb();
   }
@@ -76,15 +79,6 @@ class _LoginState extends State<Login> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 68, 138, 255).withOpacity(0.9),
       body: Container(
-        /*decoration: BoxDecoration(
-            image: DecorationImage(
-          image: AssetImage("assets/images/sfondo.jpg"),
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            Colors.white.withOpacity(0.5),
-            BlendMode.dstATop,
-          ),
-        )),*/
         child: Padding(
           padding: const EdgeInsets.all(0.0),
           child: Center(
@@ -96,16 +90,11 @@ class _LoginState extends State<Login> {
                   //allinamento centrale verticale
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    /*  Text(
-                      'Sistema Tessera Sanitaria',
-                      style: GoogleFonts.getFont('Lato',
-                          fontSize: 30, fontWeight: FontWeight.bold),
-                    ),*/
                     const SizedBox(
                       height: 0,
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(top: 30),
+                      padding: const EdgeInsets.only(top: 0),
                       child: Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
@@ -137,12 +126,12 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                     const SizedBox(
-                      height: 70,
+                      height: 20,
                     ),
                     Padding(
                       padding: const EdgeInsets.all(28.0),
                       child: Text(
-                        'Accedi al tuo account',
+                        'Recupera la password',
                         style: GoogleFonts.getFont(
                           'Lato',
                           color: Colors.black87,
@@ -152,29 +141,6 @@ class _LoginState extends State<Login> {
                         ),
                       ),
                     ),
-                    /*Padding(
-                      padding: const EdgeInsets.only(bottom: 40),
-                      child: Text('per continuare',
-                          style: GoogleFonts.getFont(
-                            'Lato',
-                            fontSize: 14,
-                            letterSpacing: 0.2,
-                          )),
-                    ),*/
-                    /*Align(
-                      alignment: Alignment.center,
-                      child: Padding(
-                        padding: const EdgeInsets.all(18.0),
-                        child: Text(
-                          'Accedi',
-                          style: GoogleFonts.getFont(
-                            'Nunito Sans',
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.0,
-                          ),
-                        ),
-                      ),
-                    ),*/
                     Padding(
                       padding: const EdgeInsets.only(left: 20.0, right: 20.0),
                       child: TextFormField(
@@ -208,16 +174,45 @@ class _LoginState extends State<Login> {
                     SizedBox(
                       height: 20,
                     ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(left: 32),
+                          child: Text('Ricevi il ',
+                              style: TextStyle(fontSize: 14)),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            inviaCodice();
+                          },
+                          child: const Text(
+                            ' codice di sicurezza',
+                            style: TextStyle(color: Colors.white, fontSize: 14),
+                          ),
+                        ),
+                        if (isLoading)
+                          const Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                            ),
+                          ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
                     Padding(
                       padding: const EdgeInsets.only(left: 20.0, right: 20),
                       child: TextFormField(
                           obscureText: visibile,
                           enableSuggestions: false,
                           autocorrect: false,
-                          controller: password,
+                          controller: codice,
                           validator: (value) {
                             if (value!.isEmpty) {
-                              return 'inserisci password';
+                              return 'inserisci il codice di sicurezza';
                             } else
                               return null;
                           },
@@ -231,7 +226,7 @@ class _LoginState extends State<Login> {
                               //focusedBorder: InputBorder.none,
                               //enabledBorder: InputBorder.none,
                               //labelText: 'password',
-                              hintText: 'password',
+                              hintText: 'codice di sicurezza',
                               hintStyle: const TextStyle(color: Colors.grey),
                               labelStyle: GoogleFonts.getFont(
                                 'Nunito Sans',
@@ -247,27 +242,58 @@ class _LoginState extends State<Login> {
                                   },
                                   icon: Icon(Icons.visibility)))),
                     ),
-                    Row(
+                    const Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         const Padding(
                           padding: EdgeInsets.only(left: 32),
-                          child:
-                              Text('recupera ', style: TextStyle(fontSize: 12)),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) {
-                              return Recovery();
-                            }));
-                          },
-                          child: const Text(
-                            'password',
-                            style: TextStyle(color: Colors.white, fontSize: 12),
-                          ),
+                          child: Text(
+                              'Inserisci il codice ricevuto nella email di registrazione ',
+                              style: TextStyle(fontSize: 14)),
                         ),
                       ],
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20.0, right: 20),
+                      child: TextFormField(
+                          obscureText: visibile,
+                          enableSuggestions: false,
+                          autocorrect: false,
+                          controller: password,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'inserisci il codice di sicurezza';
+                            } else
+                              return null;
+                          },
+                          decoration: InputDecoration(
+                              errorStyle: TextStyle(color: Colors.white),
+                              fillColor: Colors.white,
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              //focusedBorder: InputBorder.none,
+                              //enabledBorder: InputBorder.none,
+                              //labelText: 'password',
+                              hintText: 'inserisci la nuova password',
+                              hintStyle: const TextStyle(color: Colors.grey),
+                              labelStyle: GoogleFonts.getFont(
+                                'Nunito Sans',
+                                fontSize: 14,
+                                letterSpacing: 0.1,
+                              ),
+                              prefixIcon: Icon(Icons.password),
+                              suffixIcon: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      visibile = !visibile;
+                                    });
+                                  },
+                                  icon: Icon(Icons.visibility)))),
                     ),
                     const SizedBox(
                       height: 40,
@@ -276,19 +302,16 @@ class _LoginState extends State<Login> {
                       onTap: () async {
                         if (_formKey.currentState!.validate()) {
                           setState(() {
-                            isLoading = true;
+                            isLoading2 = true;
                           });
-                          final resp = await loginHttp();
+                          final resp = await modificaPw();
                           String a;
                           if (resp == 200) {
-                            a = "Login effettuato con successo";
-                            final prefs = await SharedPreferences.getInstance();
-                            await prefs.setString(
-                                'username', username.text.toLowerCase());
+                            a = "Password modificata";
                             Navigator.pushAndRemoveUntil<void>(context,
                                 MaterialPageRoute(builder: (context) {
                               //return Mainscreen(username.text);
-                              return MyApp(user: username.text);
+                              return Login();
                             }), (Route<dynamic> route) => false);
                           } else if (resp != 0) {
                             a = "Login errato";
@@ -298,7 +321,7 @@ class _LoginState extends State<Login> {
                           ScaffoldMessenger.of(context)
                               .showSnackBar(SnackBar(content: Text(a)));
                           setState(() {
-                            isLoading = false;
+                            isLoading2 = false;
                           });
                         }
                       },
@@ -320,11 +343,11 @@ class _LoginState extends State<Login> {
                               colors: [Colors.blue, Colors.lightBlue]),
                         ),
                         child: Center(
-                            child: isLoading
+                            child: isLoading2
                                 ? const CircularProgressIndicator(
                                     color: Colors.white)
                                 : Text(
-                                    'Login',
+                                    'Modifica',
                                     style: GoogleFonts.getFont('Lato',
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
@@ -337,30 +360,23 @@ class _LoginState extends State<Login> {
                       children: [
                         const Padding(
                           padding: EdgeInsets.all(8.0),
-                          child: Text('non sei registrato?'),
+                          child: Text('Torna a '),
                         ),
                         InkWell(
                           onTap: () {
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
-                              return Signup();
+                              return Login();
                             }));
                           },
                           child: const Text(
-                            'Registrati',
+                            'Login',
                             style: TextStyle(
                               color: Colors.white,
                             ),
                           ),
                         ),
                       ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: Text(
-                        "ver. 1.0.0",
-                        style: TextStyle(color: Colors.grey.shade400),
-                      ),
                     ),
                   ],
                 ),
@@ -372,62 +388,107 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Future<int> loginHttp() async {
-    try {
-      Proxy p = new Proxy();
+  Future<int> modificaPw() async {
+    setState(() {
+      isLoading2 = true;
+    });
 
-      String url = "http://" + p.getProxy() + "/login";
+    try {
+      Proxy p = Proxy();
+
+      String url = "http://" + p.getProxy() + "/recovery";
       print("connessione a : $url");
 
-      final response = await http
-          .post(Uri.parse(url),
-              headers: {"Content-Type": "application/json"},
-              body: jsonEncode({
-                "username": username.text,
-                "password": password.text,
-              }))
-          .timeout(Duration(seconds: 5));
+      final response = await http.post(Uri.parse(url), headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }, body: <String, String>{
+        "username": username.text,
+        "uuid": codice.text,
+        "newPw": password.text,
+      }).timeout(Duration(seconds: 10));
 
       if (response.statusCode == 200) {
-        print('Post created successfully!');
-        if (response.body == "trovato") {
-          return 200;
-        } else {
-          return 400;
-        }
+        print('Success!');
+        setState(() {
+          isLoading2 = false;
+        });
+
+        return 200;
       } else {
-        print('Failed to create post.' + response.statusCode.toString());
+        print('Failed' + response.statusCode.toString());
+        setState(() {
+          isLoading2 = false;
+        });
+
         return 400;
       }
     } catch (e) {
+      setState(() {
+        isLoading2 = false;
+      });
+      log(e.toString());
+
       return 0;
     }
   }
 
-  Future<String> loginHttp2() async {
-    print("asf");
-    try {
-      final response = await http
-          .post(Uri.parse('http:/192.168.1.183:8080/login'),
-              // NB: you don't need to fill headers field
-              headers: {
-                'Content-Type':
-                    'application/json' // 'application/x-www-form-urlencoded' or whatever you need
-              },
-              body: jsonEncode({
-                'username': username.text,
-                'password': password.text,
-              }))
-          .timeout(const Duration(seconds: 2));
+  Future<int> emailHttp() async {
+    setState(() {
+      isLoading = true;
+    });
 
-      if (response.body != "non trovato") {
-        return "trovato";
+    try {
+      Proxy p = Proxy();
+
+      String url = "http://" + p.getProxy() + "/email";
+      print("connessione a : $url");
+
+      final response = await http.post(Uri.parse(url), headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }, body: <String, String>{
+        "username": username.text,
+      }).timeout(Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        print('Success!');
+        setState(() {
+          isLoading = false;
+        });
+
+        return 200;
       } else {
-        return "Error ${response.statusCode}: ${response.body}";
+        print('Failed' + response.statusCode.toString());
+        setState(() {
+          isLoading = false;
+        });
+
+        return 400;
       }
     } catch (e) {
-      print(e);
-      return "sdf";
+      setState(() {
+        isLoading = false;
+      });
+      log(e.toString());
+
+      return 0;
+    }
+  }
+
+  void inviaCodice() async {
+    int ret = await emailHttp();
+    log(ret.toString());
+    if (ret.toString() == "200") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Codice inviato alla tua email di registrazione'),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Si è verificato un errore'),
+        ),
+      );
     }
   }
 }

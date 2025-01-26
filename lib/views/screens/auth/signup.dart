@@ -8,9 +8,12 @@ import 'package:sts/views/screens/auth/login.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
+import 'package:email_validator/email_validator.dart';
+
 final username = TextEditingController();
 final passwordKey = TextEditingController();
 final passwordKeyCont = TextEditingController();
+final email = TextEditingController();
 
 bool password = false;
 bool password2 = false;
@@ -34,6 +37,7 @@ class _SigninState extends State<Signup> {
     passwordKey.clear();
     passwordKeyCont.clear();
     username.clear();
+    email.clear();
   }
 
   @override
@@ -219,6 +223,37 @@ class _SigninState extends State<Signup> {
                                 },
                                 icon: Icon(Icons.visibility)))),
                     const SizedBox(
+                      height: 20,
+                    ),
+                    TextFormField(
+                        //obscureText: !password2,
+                        controller: email,
+                        validator: (value) {
+                          final bool isValid = EmailValidator.validate(value!);
+                          if (!isValid) {
+                            return "Inserisci una email valida";
+                          }
+                        },
+                        decoration: InputDecoration(
+                          errorStyle: const TextStyle(color: Colors.white),
+                          fillColor: Colors.white,
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(9),
+                          ),
+                          //focusedBorder: InputBorder.none,
+                          //enabledBorder: InputBorder.none,
+                          //labelText: 'conferma password',
+                          hintText: 'la tua email per recupero password',
+                          hintStyle: const TextStyle(color: Colors.grey),
+                          labelStyle: GoogleFonts.getFont(
+                            'Nunito Sans',
+                            fontSize: 14,
+                            letterSpacing: 0.1,
+                          ),
+                          prefixIcon: Icon(Icons.mail),
+                        )),
+                    const SizedBox(
                       height: 40,
                     ),
                     InkWell(
@@ -330,6 +365,7 @@ Future<int> signupHttp() async {
             body: jsonEncode({
               "username": username.text,
               "password": passwordKey.text,
+              "email": email.text,
             }))
         .timeout(const Duration(seconds: 5));
 
