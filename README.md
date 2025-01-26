@@ -17,3 +17,4 @@ Qui elencate le funzioni principali:
 - recupero password dimenticata
 - caricamento dati per funzionamento in modalità demo/test
   
+![login1](https://github.com/user-attachments/assets/443d41ae-bd7f-4441-a362-ab8e47caf48b)
